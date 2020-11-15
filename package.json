@@ -1,6 +1,6 @@
 {
     "name": "mobx-strapi",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "MobX v5 SDK for Strapi v3 (headless CMS)",
@@ -29,15 +29,17 @@
     "module": "dist/mobx-strapi.js",
     "dependencies": {
         "@octokit/types": "^5.5.0",
-        "koajax": "^0.6.3",
+        "koajax": "^0.6.4",
         "mobx": "^5.15.7",
         "web-utility": "^1.8.2"
     },
     "devDependencies": {
         "husky": "^4.3.0",
+        "iterable-observer": "^1.0.0-beta.5",
         "lint-staged": "^10.5.1",
         "microbundle": "^0.12.4",
         "prettier": "^2.1.2",
+        "typedoc": "^0.19.2",
         "typescript": "^4.0.5"
     },
     "prettier": {
@@ -51,8 +53,9 @@
     },
     "scripts": {
         "test": "lint-staged",
-        "pack": "microbundle --external mobx,koajax,web-utility --globals koajax=KoAJAX,web-utility=WebUtility --name MobxStrapi",
-        "build": "rm -rf dist/  &&  npm run pack",
+        "pack-dist": "microbundle --external mobx,koajax,web-utility --globals koajax=KoAJAX,web-utility=WebUtility --name MobxStrapi",
+        "pack-docs": "typedoc source/",
+        "build": "rm -rf dist/ docs/  &&  npm run pack-dist  &&  npm run pack-docs",
         "prepublishOnly": "npm test  &&  npm run build"
     },
     "husky": {
