@@ -1,8 +1,9 @@
 import { observable } from 'mobx';
-import { UsersGetByUsernameResponseData } from '@octokit/types';
+import { components } from '@octokit/openapi-types';
 
+import { BaseData, NewData } from './type';
+import { BaseModel, loading } from './Base';
 import { APIError, service, setToken, github } from './service';
-import { BaseData, BaseModel, NewData, loading } from './Base';
 
 export interface BaseUser extends BaseData {
     username: string;
@@ -13,6 +14,8 @@ export interface BaseUser extends BaseData {
     role: any;
 }
 
+export type GithubUser = components['schemas']['public-user'];
+
 const { localStorage, location } = self;
 
 export class SessionModel<T extends BaseUser = BaseUser> extends BaseModel {
@@ -20,7 +23,7 @@ export class SessionModel<T extends BaseUser = BaseUser> extends BaseModel {
     user?: T;
 
     @observable
-    userGithub?: UsersGetByUsernameResponseData;
+    userGithub?: GithubUser;
 
     @loading
     async signIn(token: string, provider = 'github') {
@@ -55,9 +58,8 @@ export class SessionModel<T extends BaseUser = BaseUser> extends BaseModel {
 
     @loading
     async getGithubProfile(name: string) {
-        const { body } = await github.get<UsersGetByUsernameResponseData>(
-            'users/' + name
-        );
+        const { body } = await github.get<GithubUser>('users/' + name);
+
         return (this.userGithub = body);
     }
 
