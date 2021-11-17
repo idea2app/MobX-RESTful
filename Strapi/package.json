@@ -15,20 +15,20 @@
         "restful",
         "api"
     ],
-    "homepage": "https://github.com/idea2app/MobX-REST/tree/master/Strapi/",
+    "homepage": "https://github.com/idea2app/MobX-RESTful/tree/master/Strapi/",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/idea2app/MobX-REST.git"
+        "url": "git+https://github.com/idea2app/MobX-RESTful.git"
     },
     "bugs": {
-        "url": "https://github.com/idea2app/MobX-REST/issues"
+        "url": "https://github.com/idea2app/MobX-RESTful/issues"
     },
     "source": "source/index.ts",
     "types": "dist/index.d.ts",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
     "dependencies": {
-        "mobx-rest": "file:..",
+        "mobx-restful": "^0.3.0-alpha.0",
         "web-utility": "^2.9.6"
     },
     "devDependencies": {

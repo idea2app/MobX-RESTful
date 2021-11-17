@@ -29,7 +29,7 @@ export type NewData<C, P> = Partial<
 export function Body(): ParameterDecorator {
     return (target: any, key, index) =>
         Reflect.defineMetadata(
-            `mobx-rest-body-${key as string}`,
+            `mobx-restful-body-${key as string}`,
             index,
             target
         );
@@ -37,7 +37,7 @@ export function Body(): ParameterDecorator {
 
 export function checkInput() {
     return (target: any, key: string, meta: PropertyDescriptor) => {
-        const index = Reflect.getMetadata(`mobx-rest-body-${key}`, target);
+        const index = Reflect.getMetadata(`mobx-restful-body-${key}`, target);
 
         const { [index]: Model } = Reflect.getMetadata(
                 'design:paramtypes',

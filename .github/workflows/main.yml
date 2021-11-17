@@ -14,13 +14,13 @@ jobs:
               with:
                   node-version: 14
                   cache: npm
-            - name: Publish MobX-REST
+            - name: Publish MobX-RESTful
               run: |
                   npm install
                   npm publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-            - name: Update MobX-REST document
+            - name: Update MobX-RESTful document
               uses: peaceiris/actions-gh-pages@v3
               with:
                   publish_dir: ./docs

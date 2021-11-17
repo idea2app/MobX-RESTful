@@ -1,4 +1,4 @@
-import { checkInput, Body, IDType } from 'mobx-rest';
+import { checkInput, Body, IDType } from 'mobx-restful';
 
 import { StrapiStore } from '../../source';
 import { UserModel, BaseModel } from './BaseModel';

@@ -1,11 +1,11 @@
-# MobX-REST
+# MobX-RESTful
 
 Common [MobX][1] 4/5 **abstract base Class & Decorator** utilities for **RESTful API**.
 
 Just define your **Data models** & **Client HTTP methods**, then leave rest of things to MobX!
 
-[![NPM Dependency](https://david-dm.org/idea2app/MobX-REST.svg)][2]
-[![CI & CD](https://github.com/idea2app/MobX-REST/workflows/CI%20&%20CD/badge.svg)][3]
+[![NPM Dependency](https://david-dm.org/idea2app/MobX-RESTful.svg)][2]
+[![CI & CD](https://github.com/idea2app/MobX-RESTful/workflows/CI%20&%20CD/badge.svg)][3]
 [![](https://raw.githubusercontent.com/sindresorhus/awesome/main/media/mentioned-badge.svg)][4]
 
 [![NPM](https://nodei.co/npm/mobx-strapi.png?downloads=true&downloadRank=true&stars=true)][5]
@@ -19,7 +19,7 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 ### `source/store/User.ts`
 
 ```typescript
-import { IDType, Body, checkInput } from 'mobx-rest';
+import { IDType, Body, checkInput } from 'mobx-restful';
 import { StrapiStore } from 'mobx-strapi';
 import { BaseModel, UserModel } from '@your-scope/back-end-model';
 
@@ -98,10 +98,10 @@ export class UserPage extends mixin() {
 ```
 
 [1]: https://mobx.js.org/
-[2]: https://david-dm.org/idea2app/MobX-REST
-[3]: https://github.com/idea2app/MobX-REST/actions
+[2]: https://david-dm.org/idea2app/MobX-RESTful
+[3]: https://github.com/idea2app/MobX-RESTful/actions
 [4]: https://github.com/strapi/awesome-strapi
 [5]: https://nodei.co/npm/mobx-strapi/
-[6]: https://github.com/idea2app/MobX-REST/tree/master/Strapi/
-[7]: https://github.dev/idea2app/MobX-REST/blob/master/Strapi/test/index.spec.ts
+[6]: https://github.com/idea2app/MobX-RESTful/tree/master/Strapi/
+[7]: https://github.dev/idea2app/MobX-RESTful/blob/master/Strapi/test/index.spec.ts
 [8]: https://github.com/EasyWebApp/WebCell

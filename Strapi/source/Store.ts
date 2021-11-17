@@ -1,5 +1,5 @@
 import { buildURLData } from 'web-utility';
-import { HTTPMethod, PageFilter, PageData, BaseStore } from 'mobx-rest';
+import { HTTPMethod, PageFilter, PageData, BaseStore } from 'mobx-restful';
 
 import { APIError, Media } from './type';
 

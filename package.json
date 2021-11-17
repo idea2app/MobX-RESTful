@@ -1,5 +1,5 @@
 {
-    "name": "mobx-rest",
+    "name": "mobx-restful",
     "version": "0.3.0-alpha.0",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
@@ -11,13 +11,13 @@
         "restful",
         "api"
     ],
-    "homepage": "https://ideapp.dev/MobX-REST/",
+    "homepage": "https://ideapp.dev/MobX-RESTful/",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/idea2app/MobX-REST.git"
+        "url": "git+https://github.com/idea2app/MobX-RESTful.git"
     },
     "bugs": {
-        "url": "https://github.com/idea2app/MobX-REST/issues"
+        "url": "https://github.com/idea2app/MobX-RESTful/issues"
     },
     "source": "source/index.ts",
     "types": "dist/index.d.ts",
