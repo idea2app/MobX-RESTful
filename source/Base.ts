@@ -1,139 +1,130 @@
-import { observable } from 'mobx';
-import { buildURLData } from 'web-utility';
+import type { TypeKeys } from 'web-utility';
+import { observable, computed } from 'mobx';
+import {
+    HTTPMethod,
+    HTTPAuthorizationSchema,
+    IDType,
+    NewData
+} from './utility';
 
-import { MediaData, BaseData, Query, NewData, FileKeys } from './type';
-import { service } from './service';
+export interface PageData<T> {
+    keyword?: string;
+    pageIndex: number;
+    pageSize: number;
+    totalCount: number;
+    list: T[];
+}
 
-export abstract class BaseModel {
+export type PageFilter<C, P> = Omit<PageData<C>, 'list'> & NewData<C, P>;
+
+export abstract class BaseStore<
+    C,
+    P,
+    F extends PageFilter<C, P> = PageFilter<C, P>
+> implements PageData<C>
+{
+    static setAuthorization?: (
+        value: string,
+        type?: HTTPAuthorizationSchema
+    ) => any;
+
+    abstract request<T = C>(
+        method: HTTPMethod,
+        path: string,
+        body?: any,
+        header?: Record<string, string>
+    ): Promise<T>;
+
+    abstract requestPage(path: string, filter?: F): Promise<PageData<C>>;
+
+    abstract path: string;
+
     @observable
     loading = false;
 
-    static async upload(
-        model: string,
-        id: string,
-        key: string,
-        files: Blob[],
-        module?: string
-    ) {
-        const data = new FormData();
+    @observable
+    updating = false;
 
-        data.append('ref', model);
-        data.append('refId', id + '');
-        data.append('field', key);
+    @observable
+    current: C = {} as C;
 
-        if (module) data.append('source', module);
+    @observable
+    keyword?: string;
 
-        for (const file of files) data.append('files', file);
+    @observable
+    pageIndex = 1;
 
-        const { body } = await service.post<MediaData>('upload', data);
+    @observable
+    pageSize = 10;
 
-        return body;
+    @observable
+    totalCount = 0;
+
+    @observable
+    list: C[] = [];
+
+    @computed
+    get totalPage() {
+        return Math.ceil(this.totalCount / this.pageSize);
+    }
+
+    @computed
+    get noMore() {
+        return this.pageIndex >= this.totalPage;
+    }
+
+    clearCurrent() {
+        this.current = {} as C;
+    }
+
+    clearList() {
+        this.list = [];
+    }
+
+    @toggle('updating')
+    async updateOne(data: NewData<C, P>, id?: IDType) {
+        const full = await (id
+            ? this.request('PUT', `${this.path}/${id}`, data)
+            : this.request('POST', this.path, data));
+
+        return (this.current = full);
+    }
+
+    @toggle('loading')
+    async getOne(id: IDType) {
+        const full = await this.request('GET', `${this.path}/${id}`);
+
+        return (this.current = full);
+    }
+
+    @toggle('updating')
+    deleteOne(id: IDType) {
+        return this.request<void>('DELETE', `${this.path}/${id}`);
+    }
+
+    @toggle('loading')
+    async getList(filter?: F) {
+        const data = await this.requestPage(this.path, filter);
+
+        Object.assign(this, data);
+
+        return this.list;
     }
 }
 
-export function loading(target: any, key: string, meta: PropertyDescriptor) {
-    const origin: (...data: any[]) => Promise<any> = meta.value;
+export function toggle<T extends BaseStore<any, any> = BaseStore<any, any>>(
+    statusKey: TypeKeys<T, boolean>
+) {
+    return (target: any, key: string, meta: PropertyDescriptor) => {
+        const origin: (...data: any[]) => Promise<any> = meta.value;
 
-    meta.value = async function (this: BaseModel, ...data: any[]) {
-        this.loading = true;
-        try {
-            return await origin.apply(this, data);
-        } finally {
-            this.loading = false;
-        }
+        meta.value = async function (this: T, ...data: any[]) {
+            Reflect.set(this, statusKey, true);
+            try {
+                return await origin.apply(this, data);
+            } finally {
+                Reflect.set(this, statusKey, false);
+            }
+        };
     };
-}
-
-export abstract class CollectionModel<
-    D extends BaseData,
-    K extends keyof D = null
-> extends BaseModel {
-    abstract name: string;
-    abstract basePath: string;
-
-    @observable
-    current = {} as D;
-
-    @observable
-    list: D[] = [];
-
-    @observable
-    allItems: D[] = [];
-
-    setCurrent(data: Partial<D>) {
-        Object.assign(this.current, data);
-    }
-
-    @loading
-    async getOne(id: D['id']) {
-        const { body } = await service.get<D>(`${this.basePath}/${id}`);
-
-        return (this.current = body);
-    }
-
-    @loading
-    async getAll({ _sort, ...query }: Query<D> = {} as Query<D>) {
-        const { body: count } = await service.get<number>(
-            `${this.basePath}/count?${buildURLData(query)}`
-        );
-        const { body } = await service.get<D[]>(
-            `${this.basePath}?${buildURLData({
-                ...query,
-                _sort,
-                _limit: count
-            })}`
-        );
-        return (this.allItems = body);
-    }
-
-    @loading
-    async searchBy(key: K, keyword: string) {
-        const { body } = await service.get<D[]>(
-            `${this.basePath}?${key}_contains=${keyword}`
-        );
-        return (this.list = body);
-    }
-
-    select(key: keyof D, value: D[keyof D]) {
-        const item = this.list.find(({ [key]: data }) => data === value);
-
-        return (this.current = item ?? ({} as D));
-    }
-
-    @loading
-    async update({ id, ...data }: NewData<D>) {
-        const [fields, files] = Object.entries(data).reduce(
-            ([fields, files], [key, value]) => {
-                if (value instanceof Blob) files[key] = value;
-                else fields[key] = value;
-
-                return [fields, files];
-            },
-            [{}, {}] as [
-                Omit<NewData<D>, FileKeys<D>>,
-                Pick<NewData<D>, FileKeys<D>>
-            ]
-        );
-        const { body } = await (id
-            ? service.put<D>(`${this.basePath}/${id}`, fields)
-            : service.post<D>(this.basePath, fields));
-
-        for (const file in files) await this.upload(body.id, files);
-
-        return (this.current = body);
-    }
-
-    @loading
-    async upload(id: D['id'], files: Pick<NewData<D>, FileKeys<D>>) {
-        const map = {} as Pick<D, FileKeys<D>>;
-
-        for (const key in files)
-            map[key] = await CollectionModel.upload(
-                this.name,
-                id,
-                key,
-                files[key] instanceof Array ? files[key] : [files[key]]
-            );
-        return map;
-    }
 }

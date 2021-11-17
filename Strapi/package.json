@@ -1,0 +1,45 @@
+{
+    "name": "mobx-strapi",
+    "version": "0.3.0-alpha.0",
+    "license": "LGPL-3.0",
+    "author": "shiy2008@gmail.com",
+    "description": "MobX 4/5 SDK for Strapi v3 (headless CMS)",
+    "keywords": [
+        "mobx",
+        "observable",
+        "model",
+        "sdk",
+        "strapi",
+        "headless",
+        "cms",
+        "restful",
+        "api"
+    ],
+    "homepage": "https://github.com/idea2app/MobX-REST/tree/master/Strapi/",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/idea2app/MobX-REST.git"
+    },
+    "bugs": {
+        "url": "https://github.com/idea2app/MobX-REST/issues"
+    },
+    "source": "source/index.ts",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.esm.js",
+    "dependencies": {
+        "mobx-rest": "file:..",
+        "web-utility": "^2.9.6"
+    },
+    "devDependencies": {
+        "class-validator": "^0.13.1",
+        "parcel": "^2.0.1",
+        "ts-node": "^10.4.0",
+        "typescript": "^4.4.4"
+    },
+    "scripts": {
+        "test": "cd test/  &&  ts-node index.spec.ts",
+        "build": "parcel build",
+        "prepublishOnly": "npm run build"
+    }
+}

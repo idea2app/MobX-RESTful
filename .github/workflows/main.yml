@@ -1,11 +1,8 @@
 name: CI & CD
 on:
     push:
-        branches:
-            - master
-    pull_request:
-        branches:
-            - master
+        tags:
+            - v*
 jobs:
     Build-and-Deploy:
         runs-on: ubuntu-latest
@@ -13,16 +10,26 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v2
             - name: Use Node.js
-              uses: actions/setup-node@v2-beta
+              uses: actions/setup-node@v2
               with:
-                  node-version: '12'
-            - name: Install & build
+                  node-version: 14
+                  cache: npm
+            - name: Publish MobX-REST
               run: |
                   npm install
-                  npm run build
-            - name: Deploy
+                  npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Update MobX-REST document
               uses: peaceiris/actions-gh-pages@v3
               with:
                   publish_dir: ./docs
                   personal_token: ${{ secrets.GITHUB_TOKEN }}
                   force_orphan: true
+            - name: Publish MobX-Strapi
+              run: |
+                  cd Strapi/
+                  npm install
+                  npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

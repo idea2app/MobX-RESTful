@@ -1,78 +1,107 @@
-# MobX-Strapi
+# MobX-REST
 
-[MobX][1] SDK for [Strapi][2] v3 (headless CMS)
+Common [MobX][1] 4/5 **abstract base Class & Decorator** utilities for **RESTful API**.
 
-[![NPM Dependency](https://david-dm.org/EasyWebApp/MobX-Strapi.svg)][3]
-[![CI & CD](https://github.com/EasyWebApp/MobX-Strapi/workflows/CI%20&%20CD/badge.svg)][4]
-[![](https://raw.githubusercontent.com/sindresorhus/awesome/main/media/mentioned-badge.svg)][5]
+Just define your **Data models** & **Client HTTP methods**, then leave rest of things to MobX!
 
-[![NPM](https://nodei.co/npm/mobx-strapi.png?downloads=true&downloadRank=true&stars=true)][6]
+[![NPM Dependency](https://david-dm.org/idea2app/MobX-REST.svg)][2]
+[![CI & CD](https://github.com/idea2app/MobX-REST/workflows/CI%20&%20CD/badge.svg)][3]
+[![](https://raw.githubusercontent.com/sindresorhus/awesome/main/media/mentioned-badge.svg)][4]
 
-## Example
+[![NPM](https://nodei.co/npm/mobx-strapi.png?downloads=true&downloadRank=true&stars=true)][5]
 
-https://github.com/kaiyuanshe/PWA/tree/master/src/model
+## Strapi API for example
 
-## Usage
+[MobX-Strapi][6], old version of this package, becomes a high-level wrapper.
 
-### `model/index.ts`
+[![](https://img.shields.io/badge/open-GitHub.dev-blue)][7]
 
-```JavaScript
-import { service } from 'mobx-strapi';
+### `source/store/User.ts`
 
-import { SampleModel } from './Sample';
+```typescript
+import { IDType, Body, checkInput } from 'mobx-rest';
+import { StrapiStore } from 'mobx-strapi';
+import { BaseModel, UserModel } from '@your-scope/back-end-model';
 
-if (self.location.hostname !== 'localhost')
-    service.baseURI = 'http://your.production.domain/path/optional';
+export class UserStore extends StrapiStore<UserModel, BaseModel> {
+    path = 'user';
 
-export const sample = new SampleModel();
-```
-
-### `model/Sample.ts`
-
-```TypeScript
-import { BaseData, MediaData, CollectionModel } from 'mobx-strapi';
-
-export interface Sample extends BaseData {
-    file: MediaData;
+    @checkInput()
+    async updateOne(@Body() data: UserModel, id?: IDType) {
+        return super.updateOne(data, id);
+    }
 }
 
-export class SampleModel extends CollectionModel<Sample> {
-    name = 'sample';
-    basePath = 'samples';
-}
+export default new UserStore();
 ```
 
-### `page/Sample.tsx`
+### `source/index.ts`
 
-Use [WebCell][7] as an Example
+```typescript
+import userStore from './store/User';
 
-```JSX
+(async () => {
+    const { id } = await userStore.updateOne({
+        username: 'TechQuery',
+        email: 'tech-query@ideapp.dev'
+    });
+    await userStore.updateOne({ username: 'Chinese Taxpayer', email: '' }, id);
+
+    const { username } = await userStore.getOne(id!);
+
+    console.assert(
+        username === 'Chinese Taxpayer',
+        'This guy is Chinese Citizen'
+    );
+    try {
+        await userStore.deleteOne(id!);
+    } catch {
+        console.error('You have no right to remove!');
+    }
+    const list = await userStore.getList();
+
+    console.log(list);
+})();
+```
+
+### `source/page/User.tsx`
+
+Use [WebCell][8] as an Example
+
+```jsx
 import { component, mixin, createCell } from 'web-cell';
 import { observer } from 'mobx-web-cell';
 
-import { sample } from '../model';
+import userStore from '../store';
 
 @observer
 @component({
-    tagName: 'sample-page'
+    tagName: 'user-page'
 })
-export class SamplePage extends mixin() {
+export class UserPage extends mixin() {
     connectedCallback() {
-        sample.getOne()
+        userStore.getList();
     }
 
     render() {
-        const { file } = sample.current;
+        const { list } = userStore;
 
-        return <img src={file?.url} />;
+        return (
+            <ol>
+                {list.map(({ username }) => (
+                    <li>{username}</li>
+                ))}
+            </ol>
+        );
     }
 }
 ```
 
 [1]: https://mobx.js.org/
-[2]: https://strapi.io/
-[3]: https://david-dm.org/EasyWebApp/MobX-Strapi
-[4]: https://github.com/EasyWebApp/MobX-Strapi/actions
-[5]: https://github.com/strapi/awesome-strapi
-[6]: https://nodei.co/npm/mobx-strapi/
-[7]: https://github.com/EasyWebApp/WebCell
+[2]: https://david-dm.org/idea2app/MobX-REST
+[3]: https://github.com/idea2app/MobX-REST/actions
+[4]: https://github.com/strapi/awesome-strapi
+[5]: https://nodei.co/npm/mobx-strapi/
+[6]: https://github.com/idea2app/MobX-REST/tree/master/Strapi/
+[7]: https://github.dev/idea2app/MobX-REST/blob/master/Strapi/test/index.spec.ts
+[8]: https://github.com/EasyWebApp/WebCell

@@ -1,17 +1,16 @@
 {
     "compilerOptions": {
+        "strict": true,
         "target": "ES5",
-        "module": "ES6",
-        "moduleResolution": "Node",
         "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "lib": ["ES2020", "DOM"]
     },
     "include": ["source/**/*"],
     "typedocOptions": {
-        "name": "Strapi MobX SDK",
-        "mode": "file",
+        "name": "MobX REST",
         "excludeExternals": true,
-        "excludeNotExported": true,
+        "excludePrivate": true,
         "readme": "./ReadMe.md",
         "out": "docs/"
     }
