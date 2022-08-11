@@ -1,0 +1,7 @@
+test/
+.env
+.parcel-cache/
+docs/
+.husky/
+.github/
+.vscode/
