@@ -19,7 +19,9 @@ jobs:
             - name: Install Dependencies
               run: pnpm i --frozen-lockfile
             - name: Build & Publish
-              run: npm publish
+              run: |
+                  echo GITHUB_PAT=${{ secrets.PAT }} > .env
+                  npm publish
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Update document
