@@ -1,17 +1,18 @@
 import { isEmpty, buildURLData } from 'web-utility';
 
 import { ListModel } from '../source/List';
-import { service } from './service';
+import { client } from './service';
 
 type Repository = Record<'full_name' | 'html_url', string>;
 
 describe('List model', () => {
     describe('Simple List model', () => {
         class RepositoryModel extends ListModel<Repository> {
+            client = client;
             baseURI = 'orgs/idea2app/repos';
 
             async loadPage(page: number, per_page: number) {
-                const { body } = await service.get<Repository[]>(
+                const { body } = await this.client.get<Repository[]>(
                     `${this.baseURI}?${buildURLData({ page, per_page })}`
                 );
                 return { pageData: body };

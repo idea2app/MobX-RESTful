@@ -1,19 +1,16 @@
-import { TypeKeys } from 'web-utility';
 import { observable, computed, action, reaction } from 'mobx';
 
-import { splitList } from './utility';
-import { IDType, DataObject, BaseListModel, toggle } from './Base';
+import { DataObject, NewData, splitList, toggle } from './utility';
+import { BaseListModel } from './Base';
 
-export type Filter<T extends DataObject> = {
-    pageSize?: number;
-    pageIndex?: number;
-} & {
-    [K in TypeKeys<T, DataObject>]?: IDType;
-};
+export interface PageData<D extends DataObject> {
+    pageData: D[];
+    totalCount?: number;
+}
 
 export abstract class ListModel<
     D extends DataObject,
-    F extends Filter<D> = Filter<D>
+    F extends NewData<D> = NewData<D>
 > extends BaseListModel<D> {
     @observable
     pageIndex = 0;
@@ -79,9 +76,7 @@ export abstract class ListModel<
         pageIndex: number,
         pageSize: number,
         filter: F
-    ): Promise<
-        { pageData: D[] } & Partial<Pick<ListModel<D, F>, 'totalCount'>>
-    >;
+    ): Promise<PageData<D>>;
 
     protected async loadNewPage(
         pageIndex: number,
@@ -129,7 +124,7 @@ export abstract class ListModel<
 
 export abstract class CacheListModel<
     D extends DataObject,
-    F extends Filter<D> = Filter<D>
+    F extends NewData<D> = NewData<D>
 > extends ListModel<D, F> {
     protected pendingList: ReturnType<ListModel<D, F>['loadPage']>[] = [];
 

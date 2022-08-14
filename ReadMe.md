@@ -1,6 +1,10 @@
 # MobX RESTful
 
-[MobX][1] SDK for [RESTful API][2] (which predecessor is [MobX-Strapi][3])
+Common [MobX][1] 4/5 **abstract base Class & Decorator** utilities for [RESTful API][2].
+
+Just define your **Data models** & **Client HTTP methods**, then leave rest of things to MobX!
+
+> Its predecessor is known as [MobX-Strapi][3], which is a MobX awesome project.
 
 [![CI & CD](https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml/badge.svg)][4]
 
@@ -8,35 +12,40 @@
 
 ## Usage
 
-### `model/index.ts`
+### `model/client.ts`
 
 ```javascript
-import { service } from 'mobx-restful';
+import { HTTPClient } from 'koajax';
 
-service.baseURI = 'https://api.github.com/';
-
-import { RepositoryModel } from './Repository';
-
-export const repositoryStore = new RepositoryModel();
+export const client = new HTTPClient({
+    baseURI: 'https://api.github.com/',
+    responseType: 'json'
+});
 ```
 
 ### `model/Repository.ts`
 
 ```typescript
-import { ListModel, service } from 'mobx-restful';
+import { buildURLData } from 'web-utility';
+import { ListModel } from 'mobx-restful';
+
+import { client } from './client';
 
 export type Repository = Record<'full_name' | 'html_url', string>;
 
 export class RepositoryModel extends ListModel<Repository> {
+    client = client;
     baseURI = 'orgs/idea2app/repos';
 
     async loadPage(page: number, per_page: number) {
-        const { body } = await service.get<Repository[]>(
+        const { body } = await this.client.get<Repository[]>(
             `${this.baseURI}?${buildURLData({ page, per_page })}`
         );
         return { pageData: body };
     }
 }
+
+export default new RepositoryModel();
 ```
 
 ### `page/Repository.tsx`
@@ -46,7 +55,7 @@ Use [WebCell][6] as an Example
 ```tsx
 import { WebCell, component, observer, createCell } from 'web-cell';
 
-import { sample } from '../model';
+import repositoryStore from '../model/Repository';
 
 @component({
     tagName: 'repository-page'
@@ -54,22 +63,35 @@ import { sample } from '../model';
 @observer
 export class RepositoryPage extends WebCell() {
     connectedCallback() {
-        repositoryStore.getOne();
+        repositoryStore.getList();
+    }
+
+    disconnectedCallback() {
+        repositoryStore.clear();
     }
 
     render() {
-        const { full_name, html_url } = sample.currentOne;
+        const { currentPage } = repositoryStore;
 
         return (
-            <h1>
-                <a target="_blank" href={html_url}>
-                    {full_name}
-                </a>
-            </h1>
+            <ul>
+                {currentPage.map(({ full_name, html_url }) => (
+                    <li>
+                        <a target="_blank" href={html_url}>
+                            {full_name}
+                        </a>
+                    </li>
+                ))}
+            </ul>
         );
     }
 }
 ```
+
+## Scaffold
+
+-   Progressive Web App (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
+-   Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
 
 [1]: https://mobx.js.org/
 [2]: https://en.wikipedia.org/wiki/Representational_state_transfer

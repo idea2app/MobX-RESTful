@@ -1,14 +1,14 @@
 import 'dotenv/config';
+import { HTTPClient } from 'koajax/source';
 
-import { service } from '../source/service';
-
-export { service } from '../source/service';
-
-service.baseURI = 'https://api.github.com/';
+export const client = new HTTPClient({
+    baseURI: 'https://api.github.com/',
+    responseType: 'json'
+});
 
 const { GITHUB_PAT } = process.env;
 
-service.use(({ request }, next) => {
+client.use(({ request }, next) => {
     (request.headers ||= {})['Authorization'] = `Bearer ${GITHUB_PAT}`;
 
     return next();
