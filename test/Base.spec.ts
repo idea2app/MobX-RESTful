@@ -1,7 +1,8 @@
 import { sleep } from 'web-utility';
 
-import { BaseModel, BaseListModel, toggle } from '../source/Base';
-import './service';
+import { toggle } from '../source/utility';
+import { BaseModel, BaseListModel } from '../source/Base';
+import { client } from './service';
 
 describe('Base model', () => {
     it('should toggle Numeric fields with Async method called', async () => {
@@ -42,6 +43,7 @@ describe('Base model', () => {
             full_name: string;
             private: boolean;
         }> {
+            client = client;
             baseURI = 'repos';
         }
         const store = new SimpleListModel();
