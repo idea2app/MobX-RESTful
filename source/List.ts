@@ -1,6 +1,7 @@
+import { Constructor, splitArray } from 'web-utility';
 import { observable, computed, action, reaction } from 'mobx';
 
-import { DataObject, NewData, splitList, toggle } from './utility';
+import { DataObject, NewData, toggle } from './utility';
 import { BaseListModel } from './Base';
 
 export interface PageData<D extends DataObject> {
@@ -49,7 +50,7 @@ export abstract class ListModel<
 
         reaction(
             () => this.pageSize,
-            pageSize => (this.pageList = splitList(this.allItems, pageSize))
+            pageSize => (this.pageList = splitArray(this.allItems, pageSize))
         );
     }
 
@@ -118,53 +119,123 @@ export abstract class ListModel<
             pageSize,
             filter
         );
+        this.filter = filter;
+
         return this.flushPage(pageIndex, pageSize, pageData);
     }
 }
 
-export abstract class CacheListModel<
+/**
+ * Only for Type Hint of {@link BufferListModel} mixin
+ *
+ * @deprecated
+ */
+export abstract class BufferList<
     D extends DataObject,
     F extends NewData<D> = NewData<D>
 > extends ListModel<D, F> {
     protected pendingList: ReturnType<ListModel<D, F>['loadPage']>[] = [];
+}
 
-    clear() {
-        this.pendingList = [];
+export function BufferListModel<
+    D extends DataObject,
+    F extends NewData<D> = NewData<D>
+>(): abstract new () => BufferList<D, F> {
+    abstract class BufferListMixin extends BufferList<D, F> {
+        clear() {
+            this.pendingList = [];
 
-        return this;
-    }
-
-    @toggle('downloading')
-    @action
-    async getList(
-        filter: F = this.filter,
-        pageIndex = this.pageIndex + 1,
-        pageSize = this.pageSize
-    ): Promise<D[]> {
-        const currentIndex = pageIndex - 1;
-
-        if (this.pendingList[currentIndex]) {
-            const { pageData } = await this.pendingList[currentIndex];
-
-            return this.flushPage(pageIndex, pageSize, pageData);
+            return this;
         }
 
-        if (this.pageList[currentIndex]) {
-            this.turnTo(pageIndex, pageSize);
-        } else {
-            var list = await super.getList(filter, pageIndex, pageSize);
+        @toggle('downloading')
+        @action
+        async getList(
+            filter: F = this.filter,
+            pageIndex = this.pageIndex + 1,
+            pageSize = this.pageSize
+        ): Promise<D[]> {
+            const currentIndex = pageIndex - 1;
+
+            if (this.pendingList[currentIndex]) {
+                const { pageData } = await this.pendingList[currentIndex];
+
+                return this.flushPage(pageIndex, pageSize, pageData);
+            }
+
+            if (this.pageList[currentIndex]) {
+                this.turnTo(pageIndex, pageSize);
+            } else {
+                var list = await super.getList(filter, pageIndex, pageSize);
+            }
+
+            const nextIndex = pageIndex + 1;
+
+            this.pendingList[nextIndex] = this.loadNewPage(
+                nextIndex,
+                pageSize,
+                filter
+            ).then(data => {
+                this.pendingList[nextIndex] = undefined;
+                return data;
+            });
+            return list;
+        }
+    }
+    return BufferListMixin;
+}
+
+/**
+ * Only for Type Hint of {@link StreamListModel} mixin
+ *
+ * @deprecated
+ */
+export abstract class StreamList<
+    D extends DataObject,
+    F extends NewData<D> = NewData<D>
+> extends ListModel<D, F> {
+    protected stream?: AsyncGenerator<D, void, D>;
+    protected abstract openStream(filter: F): AsyncGenerator<D, void, D>;
+
+    protected async loadPage(pageIndex: number, pageSize: number, filter: F) {
+        return { pageData: [] };
+    }
+}
+
+export function StreamListModel<
+    D extends DataObject,
+    F extends NewData<D> = NewData<D>
+>(): abstract new () => StreamList<D, F> {
+    abstract class StreamListMixin extends StreamList<D, F> {
+        clear() {
+            this.stream = undefined;
+
+            return super.clear();
         }
 
-        const nextIndex = pageIndex + 1;
+        protected async loadPage(
+            pageIndex: number,
+            pageSize: number,
+            filter: F
+        ) {
+            const newPageCount = pageIndex - this.pageList.length;
 
-        this.pendingList[nextIndex] = this.loadNewPage(
-            nextIndex,
-            pageSize,
-            filter
-        ).then(data => {
-            this.pendingList[nextIndex] = undefined;
-            return data;
-        });
-        return list;
+            this.stream ||= this.openStream(filter);
+
+            for (let i = 0; i < newPageCount; i++) {
+                const pageData: D[] = [];
+
+                for (let j = 0; j < pageSize; j++) {
+                    const { done, value } = await this.stream.next();
+
+                    if (done) break;
+
+                    pageData.push(value as D);
+                }
+                this.pageList = [...this.pageList, pageData];
+            }
+            return { pageData: this.pageList[pageIndex - 1] };
+        }
     }
+    return StreamListMixin;
 }

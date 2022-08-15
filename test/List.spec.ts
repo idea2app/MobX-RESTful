@@ -1,12 +1,12 @@
-import { isEmpty, buildURLData } from 'web-utility';
+import { isEmpty, buildURLData, mergeStream } from 'web-utility';
 
-import { ListModel } from '../source/List';
+import { ListModel, StreamListModel } from '../source/List';
 import { client } from './service';
 
-type Repository = Record<'full_name' | 'html_url', string>;
-
 describe('List model', () => {
-    describe('Simple List model', () => {
+    describe('Single List model', () => {
+        type Repository = Record<'full_name' | 'html_url', string>;
+
         class RepositoryModel extends ListModel<Repository> {
             client = client;
             baseURI = 'orgs/idea2app/repos';
@@ -94,6 +94,52 @@ describe('List model', () => {
             expect(store.totalCount).toBe(20);
             expect(store.allItems).toHaveLength(20);
             expect(isEmpty(store.pageList[0])).toBe(true);
+        });
+    });
+
+    describe('Multiple List model', () => {
+        type User = Record<'name', string>;
+
+        class UserModel extends StreamListModel<User>() {
+            client = client;
+            baseURI = 'user';
+
+            protected openStream() {
+                return mergeStream(
+                    async function* () {
+                        yield* new Array<User>(3).fill({ name: 'Ukrainian' });
+                    },
+                    async function* () {
+                        yield* new Array<User>(3).fill({ name: 'Russian' });
+                    }
+                );
+            }
+        }
+        const store = new UserModel();
+
+        it('should load a Page with items in every stream', async () => {
+            const list = await store.getList({}, 1, 3);
+
+            expect(list).toEqual([
+                { name: 'Ukrainian' },
+                { name: 'Russian' },
+                { name: 'Ukrainian' }
+            ]);
+        });
+
+        it('should load all pages before current page', async () => {
+            store.clear();
+
+            expect(store.pageList).toHaveLength(0);
+
+            const list = await store.getList({}, 2, 3);
+
+            expect(list).toEqual([
+                { name: 'Russian' },
+                { name: 'Ukrainian' },
+                { name: 'Russian' }
+            ]);
+            expect(store.allItems).toHaveLength(6);
         });
     });
 });
