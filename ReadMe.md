@@ -12,7 +12,9 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 
 ## Usage
 
-### `model/client.ts`
+### Simple List
+
+#### `model/client.ts`
 
 ```javascript
 import { HTTPClient } from 'koajax';
@@ -23,7 +25,7 @@ export const client = new HTTPClient({
 });
 ```
 
-### `model/Repository.ts`
+#### `model/Repository.ts`
 
 ```typescript
 import { buildURLData } from 'web-utility';
@@ -37,7 +39,7 @@ export class RepositoryModel extends ListModel<Repository> {
     client = client;
     baseURI = 'orgs/idea2app/repos';
 
-    async loadPage(page: number, per_page: number) {
+    protected async loadPage(page: number, per_page: number) {
         const { body } = await this.client.get<Repository[]>(
             `${this.baseURI}?${buildURLData({ page, per_page })}`
         );
@@ -48,7 +50,7 @@ export class RepositoryModel extends ListModel<Repository> {
 export default new RepositoryModel();
 ```
 
-### `page/Repository.tsx`
+#### `page/Repository.tsx`
 
 Use [WebCell][6] as an Example
 
@@ -86,6 +88,89 @@ export class RepositoryPage extends WebCell() {
         );
     }
 }
+```
+
+### Preload List
+
+#### `model/Repository.ts`
+
+```diff
+import { buildURLData } from 'web-utility';
+-import { ListModel } from 'mobx-restful';
++import { BufferListModel } from 'mobx-restful';
+
+import { client } from './client';
+
+export type Repository = Record<'full_name' | 'html_url', string>;
+
+-export class RepositoryModel extends ListModel<Repository> {
++export class RepositoryModel extends BufferListModel<Repository>() {
+    client = client;
+    baseURI = 'orgs/idea2app/repos';
+
+    protected async loadPage(page: number, per_page: number) {
+        const { body } = await this.client.get<Repository[]>(
+            `${this.baseURI}?${buildURLData({ page, per_page })}`
+        );
+        return { pageData: body };
+    }
+}
+
+export default new RepositoryModel();
+```
+
+### Multiple Source List
+
+#### `model/Repository.ts`
+
+```diff
+-import { buildURLData } from 'web-utility';
++import { buildURLData, mergeStream } from 'web-utility';
+-import { ListModel } from 'mobx-restful';
++import { StreamListModel } from 'mobx-restful';
+
+import { client } from './client';
+
+export type Repository = Record<'full_name' | 'html_url', string>;
+
+-export class RepositoryModel extends ListModel<Repository> {
++export class RepositoryModel extends StreamListModel<Repository>() {
+    client = client;
+-    baseURI = 'orgs/idea2app/repos';
+
+-    protected async loadPage(page: number, per_page: number) {
+-        const { body } = await this.client.get<Repository[]>(
+-            `${this.baseURI}?${buildURLData({ page, per_page })}`
+-        );
+-        return { pageData: body };
+-    }
++    protected openStream() {
++        return mergeStream(
++            async function* () {
++                for (let i = 1; ; i++) {
++                    const { body } = await client.get<Repository[]>(
++                        'orgs/idea2app/repos?page=' + i
++                    );
++                    if (!body[0]) break;
++
++                    yield* body;
++                }
++            },
++            async function* () {
++                for (let i = 1; ; i++) {
++                    const { body } = await client.get<Repository[]>(
++                        'users/TechQuery/repos?page=' + i
++                    );
++                    if (!body[0]) break;
++
++                    yield* body;
++                }
++            }
++        );
++    }
+}
+
+export default new RepositoryModel();
 ```
 
 ## Scaffold

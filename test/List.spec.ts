@@ -3,10 +3,10 @@ import { isEmpty, buildURLData, mergeStream } from 'web-utility';
 import { ListModel, StreamListModel } from '../source/List';
 import { client } from './service';
 
+type Repository = Record<'full_name' | 'html_url', string>;
+
 describe('List model', () => {
     describe('Single List model', () => {
-        type Repository = Record<'full_name' | 'html_url', string>;
-
         class RepositoryModel extends ListModel<Repository> {
             client = client;
             baseURI = 'orgs/idea2app/repos';
@@ -98,48 +98,62 @@ describe('List model', () => {
     });
 
     describe('Multiple List model', () => {
-        type User = Record<'name', string>;
-
-        class UserModel extends StreamListModel<User>() {
+        class RepositoryModel extends StreamListModel<Repository>() {
             client = client;
-            baseURI = 'user';
 
             protected openStream() {
                 return mergeStream(
                     async function* () {
-                        yield* new Array<User>(3).fill({ name: 'Ukrainian' });
+                        for (let i = 1; ; i++) {
+                            const { body } = await client.get<Repository[]>(
+                                'orgs/idea2app/repos?page=' + i
+                            );
+                            if (!body[0]) break;
+
+                            yield* body;
+                        }
                     },
                     async function* () {
-                        yield* new Array<User>(3).fill({ name: 'Russian' });
+                        for (let i = 1; ; i++) {
+                            const { body } = await client.get<Repository[]>(
+                                'users/TechQuery/repos?page=' + i
+                            );
+                            if (!body[0]) break;
+
+                            yield* body;
+                        }
                     }
                 );
             }
         }
-        const store = new UserModel();
+        const store = new RepositoryModel();
 
         it('should load a Page with items in every stream', async () => {
             const list = await store.getList({}, 1, 3);
 
-            expect(list).toEqual([
-                { name: 'Ukrainian' },
-                { name: 'Russian' },
-                { name: 'Ukrainian' }
-            ]);
+            expect(
+                list.map(({ full_name }) => full_name.split('/')[0])
+            ).toEqual(['idea2app', 'TechQuery', 'idea2app']);
         });
 
-        it('should load all pages before current page', async () => {
+        it('should load all items before current page', async () => {
             store.clear();
 
             expect(store.pageList).toHaveLength(0);
 
-            const list = await store.getList({}, 2, 3);
+            const list = await store.getList({}, 2, 4);
 
-            expect(list).toEqual([
-                { name: 'Russian' },
-                { name: 'Ukrainian' },
-                { name: 'Russian' }
-            ]);
-            expect(store.allItems).toHaveLength(6);
+            expect(
+                list.map(({ full_name }) => full_name.split('/')[0])
+            ).toEqual(['idea2app', 'TechQuery', 'idea2app', 'TechQuery']);
+
+            expect(
+                store.pageList[0].map(
+                    ({ full_name }) => full_name.split('/')[0]
+                )
+            ).toEqual(['idea2app', 'TechQuery', 'idea2app', 'TechQuery']);
+
+            expect(store.allItems).toHaveLength(8);
         });
     });
 });

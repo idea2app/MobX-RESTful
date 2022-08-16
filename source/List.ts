@@ -89,6 +89,8 @@ export abstract class ListModel<
             pageSize,
             filter
         );
+        this.pageSize = pageSize;
+
         const list = [...this.pageList];
         list[pageIndex - 1] = pageData;
         this.pageList = list;
@@ -194,6 +196,8 @@ export abstract class StreamList<
     D extends DataObject,
     F extends NewData<D> = NewData<D>
 > extends ListModel<D, F> {
+    baseURI = '';
+
     protected stream?: AsyncGenerator<D, void, D>;
     protected abstract openStream(filter: F): AsyncGenerator<D, void, D>;
 
@@ -218,22 +222,24 @@ export function StreamListModel<
             pageSize: number,
             filter: F
         ) {
-            const newPageCount = pageIndex - this.pageList.length;
+            const { allItems } = this,
+                newList: D[] = [];
+            const newCount = pageIndex * pageSize - allItems.length;
 
             this.stream ||= this.openStream(filter);
 
-            for (let i = 0; i < newPageCount; i++) {
-                const pageData: D[] = [];
+            for (let i = 0; i < newCount; i++) {
+                const { done, value } = await this.stream.next();
 
-                for (let j = 0; j < pageSize; j++) {
-                    const { done, value } = await this.stream.next();
+                if (done) break;
 
-                    if (done) break;
-
-                    pageData.push(value as D);
-                }
-                this.pageList = [...this.pageList, pageData];
+                newList.push(value as D);
             }
+
+            this.pageList = splitArray(
+                [...this.allItems, ...newList],
+                pageSize
+            );
             return { pageData: this.pageList[pageIndex - 1] };
         }
     }
