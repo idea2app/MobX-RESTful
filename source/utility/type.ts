@@ -1,6 +1,8 @@
 import { TypeKeys } from 'web-utility';
 import { HTTPClient, Context } from 'koajax';
 
+export type AbstractClass<I> = abstract new (...data: any[]) => I;
+
 export type IDType = number | string;
 
 export type DataObject = Record<string, any>;

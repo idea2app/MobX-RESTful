@@ -1,23 +1,27 @@
 import { isEmpty, buildURLData, mergeStream } from 'web-utility';
 
-import { ListModel, StreamListModel } from '../source/List';
+import { NewData } from '../source/utility/type';
+import { BufferListModel, ListModel, StreamListModel } from '../source/List';
 import { client } from './service';
 
 type Repository = Record<'full_name' | 'html_url', string>;
 
 describe('List model', () => {
-    describe('Single List model', () => {
-        class RepositoryModel extends ListModel<Repository> {
-            client = client;
-            baseURI = 'orgs/idea2app/repos';
+    class RepositoryModel<
+        D extends Repository = Repository,
+        F extends NewData<D> = NewData<D>
+    > extends ListModel<D, F> {
+        client = client;
+        baseURI = 'orgs/idea2app/repos';
 
-            async loadPage(page: number, per_page: number) {
-                const { body } = await this.client.get<Repository[]>(
-                    `${this.baseURI}?${buildURLData({ page, per_page })}`
-                );
-                return { pageData: body };
-            }
+        async loadPage(page: number, per_page: number) {
+            const { body } = await this.client.get<D[]>(
+                `${this.baseURI}?${buildURLData({ page, per_page })}`
+            );
+            return { pageData: body };
         }
+    }
+    describe('Single List model', () => {
         const store = new RepositoryModel();
 
         it('should get a List data of the First page', async () => {
@@ -97,11 +101,17 @@ describe('List model', () => {
         });
     });
 
-    describe('Multiple List model', () => {
-        class RepositoryModel extends StreamListModel<Repository>() {
-            client = client;
+    describe('Preload List model', () => {
+        class PreloadRepositoryModel extends BufferListModel(RepositoryModel) {}
 
-            protected openStream() {
+        const store = new PreloadRepositoryModel();
+
+        // Type checking for now
+    });
+
+    describe('Multiple List model', () => {
+        class MultipleRepositoryModel extends StreamListModel(RepositoryModel) {
+            openStream() {
                 return mergeStream(
                     async function* () {
                         for (let i = 1; ; i++) {
@@ -126,7 +136,7 @@ describe('List model', () => {
                 );
             }
         }
-        const store = new RepositoryModel();
+        const store = new MultipleRepositoryModel();
 
         it('should load a Page with items in every stream', async () => {
             const list = await store.getList({}, 1, 3);

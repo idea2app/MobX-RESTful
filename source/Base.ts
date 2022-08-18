@@ -44,6 +44,7 @@ export abstract class BaseListModel<D extends DataObject> extends BaseModel {
         return store;
     }
 
+    @action
     clear() {
         this.currentOne = {} as D;
         this.validity = {};

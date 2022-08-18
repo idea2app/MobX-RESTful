@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@parcel/packager-ts': ^2.7.0
   '@parcel/transformer-typescript-types': ^2.7.0
-  '@swc/helpers': ^0.4.6
+  '@swc/helpers': ^0.4.7
   '@types/jest': ^28.1.7
   '@types/node': ^14.18.24
   class-validator: ^0.13.2
@@ -26,7 +26,7 @@ specifiers:
   web-utility: ^3.9.1
 
 dependencies:
-  '@swc/helpers': 0.4.6
+  '@swc/helpers': 0.4.7
   class-validator: 0.13.2
   koajax: 0.8.1_typescript@4.7.4
   reflect-metadata: 0.1.13
@@ -1408,7 +1408,7 @@ packages:
       '@parcel/source-map': 2.1.0
       '@parcel/utils': 2.7.0
       '@parcel/workers': 2.7.0_@parcel+core@2.7.0
-      '@swc/helpers': 0.4.6
+      '@swc/helpers': 0.4.7
       browserslist: 4.21.3
       detect-libc: 1.0.3
       nullthrows: 1.1.1
@@ -1589,8 +1589,8 @@ packages:
       '@sinonjs/commons': 1.8.3
     dev: true
 
-  /@swc/helpers/0.4.6:
-    resolution: {integrity: sha512-jUMFa2/gFJOBVBnd3ZZHKRNsgqD0OQQhJMlOFR5B5stMbrUlTQoI7rXORtIGb+M/BZAU/cuI68nho4De3gXzWA==}
+  /@swc/helpers/0.4.7:
+    resolution: {integrity: sha512-jJKr/2JOivCQxb5Xpli3asedRLH34QgJ3G+7gm6CoCOwt/LDDX9g67OuxvjFOiYZfngWYB66ZbjU6cUNtQdavg==}
     dependencies:
       tslib: 2.4.0
 
@@ -3548,7 +3548,7 @@ packages:
     peerDependencies:
       jsdom: ^20.0.0
     dependencies:
-      '@swc/helpers': 0.4.6
+      '@swc/helpers': 0.4.7
       iterable-observer: 1.0.0-rc.1
       web-utility: 3.9.1_typescript@4.7.4
     transitivePeerDependencies:
@@ -4915,7 +4915,7 @@ packages:
     peerDependencies:
       typescript: ^4.1.0
     dependencies:
-      '@swc/helpers': 0.4.6
+      '@swc/helpers': 0.4.7
       element-internals-polyfill: 1.1.6
       regenerator-runtime: 0.13.9
       typescript: 4.7.4

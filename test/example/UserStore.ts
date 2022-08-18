@@ -6,7 +6,7 @@ export class UserStore extends ListModel<UserModel, UserFilter> {
     client = client;
     baseURI = 'user';
 
-    protected async loadPage() {
+    async loadPage() {
         return { pageData: [] };
     }
 
