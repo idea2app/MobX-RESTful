@@ -1,7 +1,7 @@
-import { Constructor, splitArray } from 'web-utility';
+import { splitArray } from 'web-utility';
 import { observable, computed, action, reaction } from 'mobx';
 
-import { DataObject, NewData, toggle } from './utility';
+import { AbstractClass, DataObject, NewData, toggle } from './utility';
 import { BaseListModel } from './Base';
 
 export interface PageData<D extends DataObject> {
@@ -73,17 +73,13 @@ export abstract class ListModel<
         return this;
     }
 
-    protected abstract loadPage(
+    abstract loadPage(
         pageIndex: number,
         pageSize: number,
         filter: F
     ): Promise<PageData<D>>;
 
-    protected async loadNewPage(
-        pageIndex: number,
-        pageSize: number,
-        filter: F
-    ) {
+    async loadNewPage(pageIndex: number, pageSize: number, filter: F) {
         const { pageData, totalCount } = await this.loadPage(
             pageIndex,
             pageSize,
@@ -101,7 +97,7 @@ export abstract class ListModel<
         return { pageData, totalCount };
     }
 
-    protected flushPage(pageIndex: number, pageSize: number, pageData: D[]) {
+    flushPage(pageIndex: number, pageSize: number, pageData: D[]) {
         this.turnTo(pageIndex, pageSize);
 
         this.noMore = pageData.length < pageSize;
@@ -127,27 +123,18 @@ export abstract class ListModel<
     }
 }
 
-/**
- * Only for Type Hint of {@link BufferListModel} mixin
- *
- * @deprecated
- */
-export abstract class BufferList<
-    D extends DataObject,
-    F extends NewData<D> = NewData<D>
-> extends ListModel<D, F> {
-    protected pendingList: ReturnType<ListModel<D, F>['loadPage']>[] = [];
-}
-
 export function BufferListModel<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>
->(): abstract new () => BufferList<D, F> {
-    abstract class BufferListMixin extends BufferList<D, F> {
+    F extends NewData<D> = NewData<D>,
+    M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
+>(Super: M) {
+    abstract class BufferListMixin extends Super {
+        pendingList: ReturnType<ListModel<D, F>['loadPage']>[] = [];
+
         clear() {
             this.pendingList = [];
 
-            return this;
+            return super.clear();
         }
 
         @toggle('downloading')
@@ -187,41 +174,24 @@ export function BufferListModel<
     return BufferListMixin;
 }
 
-/**
- * Only for Type Hint of {@link StreamListModel} mixin
- *
- * @deprecated
- */
-export abstract class StreamList<
-    D extends DataObject,
-    F extends NewData<D> = NewData<D>
-> extends ListModel<D, F> {
-    baseURI = '';
-
-    protected stream?: AsyncGenerator<D, void, D>;
-    protected abstract openStream(filter: F): AsyncGenerator<D, void, D>;
-
-    protected async loadPage(pageIndex: number, pageSize: number, filter: F) {
-        return { pageData: [] };
-    }
-}
-
 export function StreamListModel<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>
->(): abstract new () => StreamList<D, F> {
-    abstract class StreamListMixin extends StreamList<D, F> {
+    F extends NewData<D> = NewData<D>,
+    M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
+>(Super: M) {
+    abstract class StreamListMixin extends Super {
+        baseURI = '';
+
+        stream?: AsyncGenerator<D, void, D>;
+        abstract openStream(filter: F): AsyncGenerator<D, void, D>;
+
         clear() {
             this.stream = undefined;
 
             return super.clear();
         }
 
-        protected async loadPage(
-            pageIndex: number,
-            pageSize: number,
-            filter: F
-        ) {
+        async loadPage(pageIndex: number, pageSize: number, filter: F) {
             const { allItems } = this,
                 newList: D[] = [];
             const newCount = pageIndex * pageSize - allItems.length;

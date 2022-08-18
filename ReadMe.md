@@ -29,17 +29,20 @@ export const client = new HTTPClient({
 
 ```typescript
 import { buildURLData } from 'web-utility';
-import { ListModel } from 'mobx-restful';
+import { NewData, ListModel } from 'mobx-restful';
 
 import { client } from './client';
 
 export type Repository = Record<'full_name' | 'html_url', string>;
 
-export class RepositoryModel extends ListModel<Repository> {
+export class RepositoryModel<
+    D extends Repository = Repository,
+    F extends NewData<D> = NewData<D>
+> extends ListModel<D, F> {
     client = client;
     baseURI = 'orgs/idea2app/repos';
 
-    protected async loadPage(page: number, per_page: number) {
+    async loadPage(page: number, per_page: number) {
         const { body } = await this.client.get<Repository[]>(
             `${this.baseURI}?${buildURLData({ page, per_page })}`
         );
@@ -92,85 +95,57 @@ export class RepositoryPage extends WebCell() {
 
 ### Preload List
 
-#### `model/Repository.ts`
+#### `model/PreloadRepository.ts`
 
-```diff
+```typescript
 import { buildURLData } from 'web-utility';
--import { ListModel } from 'mobx-restful';
-+import { BufferListModel } from 'mobx-restful';
+import { BufferListModel } from 'mobx-restful';
 
-import { client } from './client';
+import { RepositoryModel } from './Repository';
 
-export type Repository = Record<'full_name' | 'html_url', string>;
+export class PreloadRepositoryModel extends BufferListModel(RepositoryModel) {}
 
--export class RepositoryModel extends ListModel<Repository> {
-+export class RepositoryModel extends BufferListModel<Repository>() {
-    client = client;
-    baseURI = 'orgs/idea2app/repos';
-
-    protected async loadPage(page: number, per_page: number) {
-        const { body } = await this.client.get<Repository[]>(
-            `${this.baseURI}?${buildURLData({ page, per_page })}`
-        );
-        return { pageData: body };
-    }
-}
-
-export default new RepositoryModel();
+export default new PreloadRepositoryModel();
 ```
 
 ### Multiple Source List
 
-#### `model/Repository.ts`
+#### `model/MultipleRepository.ts`
 
-```diff
--import { buildURLData } from 'web-utility';
-+import { buildURLData, mergeStream } from 'web-utility';
--import { ListModel } from 'mobx-restful';
-+import { StreamListModel } from 'mobx-restful';
+```typescript
+import { buildURLData, mergeStream } from 'web-utility';
+import { StreamListModel } from 'mobx-restful';
 
-import { client } from './client';
+import { Repository, RepositoryModel } from './Repository';
 
-export type Repository = Record<'full_name' | 'html_url', string>;
+export class MultipleRepository extends StreamListModel(RepositoryModel) {
+    openStream() {
+        return mergeStream(
+            async function* () {
+                for (let i = 1; ; i++) {
+                    const { body } = await client.get<Repository[]>(
+                        'orgs/idea2app/repos?page=' + i
+                    );
+                    if (!body[0]) break;
 
--export class RepositoryModel extends ListModel<Repository> {
-+export class RepositoryModel extends StreamListModel<Repository>() {
-    client = client;
--    baseURI = 'orgs/idea2app/repos';
+                    yield* body;
+                }
+            },
+            async function* () {
+                for (let i = 1; ; i++) {
+                    const { body } = await client.get<Repository[]>(
+                        'users/TechQuery/repos?page=' + i
+                    );
+                    if (!body[0]) break;
 
--    protected async loadPage(page: number, per_page: number) {
--        const { body } = await this.client.get<Repository[]>(
--            `${this.baseURI}?${buildURLData({ page, per_page })}`
--        );
--        return { pageData: body };
--    }
-+    protected openStream() {
-+        return mergeStream(
-+            async function* () {
-+                for (let i = 1; ; i++) {
-+                    const { body } = await client.get<Repository[]>(
-+                        'orgs/idea2app/repos?page=' + i
-+                    );
-+                    if (!body[0]) break;
-+
-+                    yield* body;
-+                }
-+            },
-+            async function* () {
-+                for (let i = 1; ; i++) {
-+                    const { body } = await client.get<Repository[]>(
-+                        'users/TechQuery/repos?page=' + i
-+                    );
-+                    if (!body[0]) break;
-+
-+                    yield* body;
-+                }
-+            }
-+        );
-+    }
+                    yield* body;
+                }
+            }
+        );
+    }
 }
 
-export default new RepositoryModel();
+export default new MultipleRepository();
 ```
 
 ## Scaffold
