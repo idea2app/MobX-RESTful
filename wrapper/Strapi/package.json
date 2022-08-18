@@ -1,0 +1,42 @@
+{
+    "name": "mobx-strapi",
+    "version": "0.4.0-rc.0",
+    "license": "LGPL-3.0",
+    "author": "shiy2008@gmail.com",
+    "description": "MobX SDK for Strapi v4 (headless CMS)",
+    "keywords": [
+        "mobx",
+        "observable",
+        "model",
+        "sdk",
+        "strapi",
+        "headless",
+        "cms",
+        "restful",
+        "api"
+    ],
+    "homepage": "https://github.com/idea2app/MobX-RESTful/tree/main/wrapper/Strapi",
+    "source": "source/index.ts",
+    "types": "dist/index.d.ts",
+    "module": "dist/index.esm.js",
+    "main": "dist/index.js",
+    "dependencies": {
+        "@swc/helpers": "^0.4.7",
+        "mobx-restful": "^0.6.0-rc.2",
+        "qs": "^6.11.0",
+        "regenerator-runtime": "^0.13.9"
+    },
+    "devDependencies": {
+        "@types/qs": "^6.9.7",
+        "parcel": "^2.7.0"
+    },
+    "browserslist": "> 0.5%, last 2 versions, not dead, IE 11",
+    "targets": {
+        "main": {
+            "optimize": true
+        }
+    },
+    "scripts": {
+        "build": "rm -rf dist/   &&  parcel build"
+    }
+}
