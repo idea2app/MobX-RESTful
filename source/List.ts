@@ -123,7 +123,7 @@ export abstract class ListModel<
     }
 }
 
-export function BufferListModel<
+export function Buffer<
     D extends DataObject,
     F extends NewData<D> = NewData<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
@@ -174,7 +174,7 @@ export function BufferListModel<
     return BufferListMixin;
 }
 
-export function StreamListModel<
+export function Stream<
     D extends DataObject,
     F extends NewData<D> = NewData<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
