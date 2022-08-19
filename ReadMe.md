@@ -99,11 +99,11 @@ export class RepositoryPage extends WebCell() {
 
 ```typescript
 import { buildURLData } from 'web-utility';
-import { BufferListModel } from 'mobx-restful';
+import { Buffer } from 'mobx-restful';
 
 import { RepositoryModel } from './Repository';
 
-export class PreloadRepositoryModel extends BufferListModel(RepositoryModel) {}
+export class PreloadRepositoryModel extends Buffer(RepositoryModel) {}
 
 export default new PreloadRepositoryModel();
 ```
@@ -114,11 +114,11 @@ export default new PreloadRepositoryModel();
 
 ```typescript
 import { buildURLData, mergeStream } from 'web-utility';
-import { StreamListModel } from 'mobx-restful';
+import { Stream } from 'mobx-restful';
 
 import { Repository, RepositoryModel } from './Repository';
 
-export class MultipleRepository extends StreamListModel(RepositoryModel) {
+export class MultipleRepository extends Stream(RepositoryModel) {
     openStream() {
         return mergeStream(
             async function* () {

@@ -1,7 +1,7 @@
 import { isEmpty, buildURLData, mergeStream } from 'web-utility';
 
 import { NewData } from '../source/utility/type';
-import { BufferListModel, ListModel, StreamListModel } from '../source/List';
+import { ListModel, Buffer, Stream } from '../source/List';
 import { client } from './service';
 
 type Repository = Record<'full_name' | 'html_url', string>;
@@ -102,7 +102,7 @@ describe('List model', () => {
     });
 
     describe('Preload List model', () => {
-        class PreloadRepositoryModel extends BufferListModel(RepositoryModel) {}
+        class PreloadRepositoryModel extends Buffer(RepositoryModel) {}
 
         const store = new PreloadRepositoryModel();
 
@@ -110,7 +110,7 @@ describe('List model', () => {
     });
 
     describe('Multiple List model', () => {
-        class MultipleRepositoryModel extends StreamListModel(RepositoryModel) {
+        class MultipleRepositoryModel extends Stream(RepositoryModel) {
             openStream() {
                 return mergeStream(
                     async function* () {
