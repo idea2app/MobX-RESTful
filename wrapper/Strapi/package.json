@@ -1,9 +1,9 @@
 {
     "name": "mobx-strapi",
-    "version": "0.4.0-rc.0",
+    "version": "0.4.0-rc.1",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
-    "description": "MobX SDK for Strapi v4 (headless CMS)",
+    "description": "MobX SDK for Strapi headless CMS",
     "keywords": [
         "mobx",
         "observable",
@@ -21,8 +21,8 @@
     "module": "dist/index.esm.js",
     "main": "dist/index.js",
     "dependencies": {
-        "@swc/helpers": "^0.4.7",
-        "mobx-restful": "^0.6.0-rc.2",
+        "@swc/helpers": "^0.4.11",
+        "mobx-restful": "^0.6.0-rc.3",
         "qs": "^6.11.0",
         "regenerator-runtime": "^0.13.9"
     },
@@ -37,6 +37,7 @@
         }
     },
     "scripts": {
-        "build": "rm -rf dist/   &&  parcel build"
+        "build": "rm -rf dist/  &&  parcel build",
+        "prepublishOnly": "npm run build"
     }
 }

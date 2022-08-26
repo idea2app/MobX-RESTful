@@ -4,8 +4,6 @@ Common [MobX][1] 4/5 **abstract base Class & Decorator** utilities for [RESTful 
 
 Just define your **Data models** & **Client HTTP methods**, then leave rest of things to MobX!
 
-> Its predecessor is known as [MobX-Strapi][3], which is a MobX awesome project.
-
 [![CI & CD](https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml/badge.svg)][4]
 
 [![NPM](https://nodei.co/npm/mobx-restful.png?downloads=true&downloadRank=true&stars=true)][5]
@@ -148,14 +146,17 @@ export class MultipleRepository extends Stream(RepositoryModel) {
 export default new MultipleRepository();
 ```
 
+## Wrapper
+
+1. [Strapi v4](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Strapi)
+
 ## Scaffold
 
--   Progressive Web App (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
--   Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
+1.  Progressive Web App (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
+2.  Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
 
 [1]: https://mobx.js.org/
 [2]: https://en.wikipedia.org/wiki/Representational_state_transfer
-[3]: https://github.com/idea2app/MobX-RESTful/tree/master
 [4]: https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml
 [5]: https://nodei.co/npm/mobx-restful/
 [6]: https://github.com/EasyWebApp/WebCell
