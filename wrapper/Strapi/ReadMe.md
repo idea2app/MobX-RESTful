@@ -1,10 +1,15 @@
 # MobX-Strapi
 
-[MobX][1] SDK for [Strapi][2] v4 (headless CMS)
+[MobX][1] SDK for [Strapi][2] headless CMS
 
 [![](https://raw.githubusercontent.com/sindresorhus/awesome/main/media/mentioned-badge.svg)][5]
 
 [![NPM](https://nodei.co/npm/mobx-strapi.png?downloads=true&downloadRank=true&stars=true)][6]
+
+## Version
+
+1. ~~Strapi v3: [`master`][3] branch~~ (deprecated)
+2. Strapi v4: current branch
 
 ## Usage
 
@@ -81,6 +86,7 @@ export class ArticlePage extends WebCell() {
 
 [1]: https://mobx.js.org/
 [2]: https://strapi.io/
+[3]: https://github.com/idea2app/MobX-RESTful/tree/master
 [5]: https://github.com/strapi/awesome-strapi
 [6]: https://nodei.co/npm/mobx-strapi/
 [7]: https://github.com/EasyWebApp/WebCell

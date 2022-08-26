@@ -1,16 +1,16 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@swc/helpers': ^0.4.7
+  '@swc/helpers': ^0.4.11
   '@types/qs': ^6.9.7
-  mobx-restful: ^0.6.0-rc.2
+  mobx-restful: ^0.6.0-rc.3
   parcel: ^2.7.0
   qs: ^6.11.0
   regenerator-runtime: ^0.13.9
 
 dependencies:
-  '@swc/helpers': 0.4.7
-  mobx-restful: 0.6.0-rc.2
+  '@swc/helpers': 0.4.11
+  mobx-restful: 0.6.0-rc.3
   qs: 6.11.0
   regenerator-runtime: 0.13.9
 
@@ -801,7 +801,7 @@ packages:
       '@parcel/source-map': 2.1.0
       '@parcel/utils': 2.7.0
       '@parcel/workers': 2.7.0_@parcel+core@2.7.0
-      '@swc/helpers': 0.4.7
+      '@swc/helpers': 0.4.11
       browserslist: 4.21.3
       detect-libc: 1.0.3
       nullthrows: 1.1.1
@@ -949,8 +949,8 @@ packages:
       nullthrows: 1.1.1
     dev: true
 
-  /@swc/helpers/0.4.7:
-    resolution: {integrity: sha512-jJKr/2JOivCQxb5Xpli3asedRLH34QgJ3G+7gm6CoCOwt/LDDX9g67OuxvjFOiYZfngWYB66ZbjU6cUNtQdavg==}
+  /@swc/helpers/0.4.11:
+    resolution: {integrity: sha512-rEUrBSGIoSFuYxwBYtlUFMlE2CwGhmW+w9355/5oduSw8e5h2+Tj4UrAGNNgP9915++wj5vkQo0UuOBqOAq4nw==}
     dependencies:
       tslib: 2.4.0
 
@@ -1341,7 +1341,7 @@ packages:
     peerDependencies:
       jsdom: ^20.0.0
     dependencies:
-      '@swc/helpers': 0.4.7
+      '@swc/helpers': 0.4.11
       iterable-observer: 1.0.0-rc.1
       web-utility: 3.9.1
     transitivePeerDependencies:
@@ -1378,12 +1378,12 @@ packages:
     resolution: {integrity: sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==}
     dev: true
 
-  /mobx-restful/0.6.0-rc.2:
-    resolution: {integrity: sha512-bsWp/rNtfrIti+vuLjag3PuYndi5C/YSSLmwx05CmxOeuYSHx8kZ5AVeNQin42WisDMolci+ObeJdtS/7NPgHw==}
+  /mobx-restful/0.6.0-rc.3:
+    resolution: {integrity: sha512-2kW4ZoscVl9DaOYV8meaViJ9UBur/DrdApudTYF7uylI1d3Z5TQYrEBj3lHkuLCOppzNxGKkXXauNq7LZuqQ9A==}
     peerDependencies:
       mobx: '>=4 <6'
     dependencies:
-      '@swc/helpers': 0.4.7
+      '@swc/helpers': 0.4.11
       class-validator: 0.13.2
       koajax: 0.8.1
       reflect-metadata: 0.1.13
@@ -1699,7 +1699,7 @@ packages:
     peerDependencies:
       typescript: ^4.1.0
     dependencies:
-      '@swc/helpers': 0.4.7
+      '@swc/helpers': 0.4.11
       element-internals-polyfill: 1.1.8
       regenerator-runtime: 0.13.9
     dev: false
