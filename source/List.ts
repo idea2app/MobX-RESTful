@@ -182,8 +182,8 @@ export function Stream<
     abstract class StreamListMixin extends Super {
         baseURI = '';
 
-        stream?: AsyncGenerator<D, void, D>;
-        abstract openStream(filter: F): AsyncGenerator<D, void, D>;
+        stream?: AsyncGenerator<D, void, any>;
+        abstract openStream(filter: F): AsyncGenerator<D, void, any>;
 
         clear() {
             this.stream = undefined;

@@ -4,9 +4,9 @@ Common [MobX][1] 4/5 **abstract base Class & Decorator** utilities for [RESTful 
 
 Just define your **Data models** & **Client HTTP methods**, then leave rest of things to MobX!
 
-[![CI & CD](https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml/badge.svg)][4]
+[![CI & CD](https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml/badge.svg)][3]
 
-[![NPM](https://nodei.co/npm/mobx-restful.png?downloads=true&downloadRank=true&stars=true)][5]
+[![NPM](https://nodei.co/npm/mobx-restful.png?downloads=true&downloadRank=true&stars=true)][4]
 
 ## Usage
 
@@ -53,7 +53,7 @@ export default new RepositoryModel();
 
 #### `page/Repository.tsx`
 
-Use [WebCell][6] as an Example
+Use [WebCell][5] as an Example
 
 ```tsx
 import { WebCell, component, observer, createCell } from 'web-cell';
@@ -99,9 +99,17 @@ export class RepositoryPage extends WebCell() {
 import { buildURLData } from 'web-utility';
 import { Buffer } from 'mobx-restful';
 
-import { RepositoryModel } from './Repository';
+import { client } from './client';
+import { Repository, RepositoryModel } from './Repository';
 
-export class PreloadRepositoryModel extends Buffer(RepositoryModel) {}
+export class PreloadRepositoryModel extends Buffer<Repository>(
+    RepositoryModel
+) {
+    client = client;
+    baseURI = 'orgs/idea2app/repos';
+
+    loadPage = RepositoryModel.prototype.loadPage;
+}
 
 export default new PreloadRepositoryModel();
 ```
@@ -114,9 +122,12 @@ export default new PreloadRepositoryModel();
 import { buildURLData, mergeStream } from 'web-utility';
 import { Stream } from 'mobx-restful';
 
+import { client } from './client';
 import { Repository, RepositoryModel } from './Repository';
 
-export class MultipleRepository extends Stream(RepositoryModel) {
+export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
+    client = client;
+
     openStream() {
         return mergeStream(
             async function* () {
@@ -155,8 +166,13 @@ export default new MultipleRepository();
 1.  Progressive Web App (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
 2.  Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
 
+## Limitation
+
+-   [ ] [`abstract` hint of Mixin is missing][6]
+
 [1]: https://mobx.js.org/
 [2]: https://en.wikipedia.org/wiki/Representational_state_transfer
-[4]: https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml
-[5]: https://nodei.co/npm/mobx-restful/
-[6]: https://github.com/EasyWebApp/WebCell
+[3]: https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml
+[4]: https://nodei.co/npm/mobx-restful/
+[5]: https://github.com/EasyWebApp/WebCell
+[6]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720
