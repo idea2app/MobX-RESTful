@@ -102,7 +102,14 @@ describe('List model', () => {
     });
 
     describe('Preload List model', () => {
-        class PreloadRepositoryModel extends Buffer(RepositoryModel) {}
+        class PreloadRepositoryModel extends Buffer<Repository>(
+            RepositoryModel
+        ) {
+            client = client;
+            baseURI = 'orgs/idea2app/repos';
+
+            loadPage = RepositoryModel.prototype.loadPage;
+        }
 
         const store = new PreloadRepositoryModel();
 
@@ -110,7 +117,11 @@ describe('List model', () => {
     });
 
     describe('Multiple List model', () => {
-        class MultipleRepositoryModel extends Stream(RepositoryModel) {
+        class MultipleRepositoryModel extends Stream<Repository>(
+            RepositoryModel
+        ) {
+            client = client;
+
             openStream() {
                 return mergeStream(
                     async function* () {
