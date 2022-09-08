@@ -28,10 +28,12 @@ export const client = new HTTPClient({
 ```typescript
 import { buildURLData } from 'web-utility';
 import { NewData, ListModel } from 'mobx-restful';
+import { components } from '@octokit/openapi-types';
 
 import { client } from './client';
 
-export type Repository = Record<'full_name' | 'html_url', string>;
+export type Organization = components['schemas']['organization-full'];
+export type Repository = components['schemas']['minimal-repository'];
 
 export class RepositoryModel<
     D extends Repository = Repository,
@@ -41,10 +43,15 @@ export class RepositoryModel<
     baseURI = 'orgs/idea2app/repos';
 
     async loadPage(page: number, per_page: number) {
-        const { body } = await this.client.get<Repository[]>(
+        const { body } = await this.client.get<D[]>(
             `${this.baseURI}?${buildURLData({ page, per_page })}`
         );
-        return { pageData: body };
+        const [_, organization] = this.baseURI.split('/');
+        const {
+            body: { public_repos }
+        } = await this.client.get<Organization>(`orgs/${organization}`);
+
+        return { pageData: body, totalCount: public_repos };
     }
 }
 
@@ -121,35 +128,54 @@ export default new PreloadRepositoryModel();
 ```typescript
 import { buildURLData, mergeStream } from 'web-utility';
 import { Stream } from 'mobx-restful';
+import { components } from '@octokit/openapi-types';
 
 import { client } from './client';
 import { Repository, RepositoryModel } from './Repository';
 
+export type User = components['schemas']['public-user'];
+
 export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
     client = client;
 
+    async *getOrgRepos() {
+        const {
+            body: { public_repos }
+        } = await this.client.get<Organization>('orgs/idea2app');
+
+        this.totalCount = public_repos;
+
+        for (let i = 1; ; i++) {
+            const { body } = await this.client.get<Repository[]>(
+                'orgs/idea2app/repos?page=' + i
+            );
+            if (!body[0]) break;
+
+            yield* body;
+        }
+    }
+
+    async *getUserRepos() {
+        const {
+            body: { public_repos }
+        } = await this.client.get<User>('users/TechQuery');
+
+        this.totalCount = public_repos;
+
+        for (let i = 1; ; i++) {
+            const { body } = await this.client.get<Repository[]>(
+                'users/TechQuery/repos?page=' + i
+            );
+            if (!body[0]) break;
+
+            yield* body;
+        }
+    }
+
     openStream() {
         return mergeStream(
-            async function* () {
-                for (let i = 1; ; i++) {
-                    const { body } = await client.get<Repository[]>(
-                        'orgs/idea2app/repos?page=' + i
-                    );
-                    if (!body[0]) break;
-
-                    yield* body;
-                }
-            },
-            async function* () {
-                for (let i = 1; ; i++) {
-                    const { body } = await client.get<Repository[]>(
-                        'users/TechQuery/repos?page=' + i
-                    );
-                    if (!body[0]) break;
-
-                    yield* body;
-                }
-            }
+            this.getOrgRepos.bind(this),
+            this.getUserRepos.bind(this)
         );
     }
 }
