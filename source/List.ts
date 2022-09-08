@@ -80,7 +80,7 @@ export abstract class ListModel<
     ): Promise<PageData<D>>;
 
     async loadNewPage(pageIndex: number, pageSize: number, filter: F) {
-        const { pageData, totalCount } = await this.loadPage(
+        const { pageData, totalCount = Infinity } = await this.loadPage(
             pageIndex,
             pageSize,
             filter
@@ -91,8 +91,7 @@ export abstract class ListModel<
         list[pageIndex - 1] = pageData;
         this.pageList = list;
 
-        this.totalCount =
-            totalCount ?? (pageIndex - 1) * pageSize + pageData.length;
+        this.totalCount ||= totalCount;
 
         return { pageData, totalCount };
     }
@@ -192,9 +191,13 @@ export function Stream<
         }
 
         async loadPage(pageIndex: number, pageSize: number, filter: F) {
-            const { allItems } = this,
-                newList: D[] = [];
-            const newCount = pageIndex * pageSize - allItems.length;
+            const { totalCount, allItems } = this,
+                newList: D[] = [],
+                requiredCount = pageIndex * pageSize;
+            const newCount =
+                (totalCount
+                    ? Math.min(totalCount, requiredCount)
+                    : requiredCount) - allItems.length;
 
             this.stream ||= this.openStream(filter);
 

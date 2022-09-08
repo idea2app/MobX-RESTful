@@ -1,10 +1,13 @@
 import { isEmpty, buildURLData, mergeStream } from 'web-utility';
+import { components } from '@octokit/openapi-types';
 
 import { NewData } from '../source/utility/type';
 import { ListModel, Buffer, Stream } from '../source/List';
 import { client } from './service';
 
-type Repository = Record<'full_name' | 'html_url', string>;
+type User = components['schemas']['public-user'];
+type Organization = components['schemas']['organization-full'];
+type Repository = components['schemas']['minimal-repository'];
 
 describe('List model', () => {
     class RepositoryModel<
@@ -18,7 +21,12 @@ describe('List model', () => {
             const { body } = await this.client.get<D[]>(
                 `${this.baseURI}?${buildURLData({ page, per_page })}`
             );
-            return { pageData: body };
+            const [_, organization] = this.baseURI.split('/');
+            const {
+                body: { public_repos }
+            } = await this.client.get<Organization>(`orgs/${organization}`);
+
+            return { pageData: body, totalCount: public_repos };
         }
     }
     describe('Single List model', () => {
@@ -31,7 +39,7 @@ describe('List model', () => {
 
             expect(store.pageIndex).toBe(1);
             expect(store.pageSize).toBe(10);
-            expect(store.totalCount).toBe(10);
+            expect(store.totalCount).toBeGreaterThan(10);
             expect(list).toHaveLength(10);
 
             expect(store.pageList).toEqual([list]);
@@ -46,7 +54,7 @@ describe('List model', () => {
 
             expect(store.pageIndex).toBe(2);
             expect(store.pageSize).toBe(10);
-            expect(store.totalCount).toBe(20);
+            expect(store.totalCount).toBeGreaterThan(20);
             expect(list).toHaveLength(10);
 
             expect(store.pageList).toHaveLength(2);
@@ -95,7 +103,7 @@ describe('List model', () => {
             const list = await store.getList({}, 2);
 
             expect(list).toEqual(store.currentPage);
-            expect(store.totalCount).toBe(20);
+            expect(store.totalCount).toBeGreaterThan(20);
             expect(store.allItems).toHaveLength(20);
             expect(isEmpty(store.pageList[0])).toBe(true);
         });
@@ -122,28 +130,44 @@ describe('List model', () => {
         ) {
             client = client;
 
+            async *getOrgRepos() {
+                const {
+                    body: { public_repos }
+                } = await this.client.get<Organization>('orgs/idea2app');
+
+                this.totalCount = public_repos;
+
+                for (let i = 1; ; i++) {
+                    const { body } = await this.client.get<Repository[]>(
+                        'orgs/idea2app/repos?page=' + i
+                    );
+                    if (!body[0]) break;
+
+                    yield* body;
+                }
+            }
+
+            async *getUserRepos() {
+                const {
+                    body: { public_repos }
+                } = await this.client.get<User>('users/TechQuery');
+
+                this.totalCount = public_repos;
+
+                for (let i = 1; ; i++) {
+                    const { body } = await this.client.get<Repository[]>(
+                        'users/TechQuery/repos?page=' + i
+                    );
+                    if (!body[0]) break;
+
+                    yield* body;
+                }
+            }
+
             openStream() {
                 return mergeStream(
-                    async function* () {
-                        for (let i = 1; ; i++) {
-                            const { body } = await client.get<Repository[]>(
-                                'orgs/idea2app/repos?page=' + i
-                            );
-                            if (!body[0]) break;
-
-                            yield* body;
-                        }
-                    },
-                    async function* () {
-                        for (let i = 1; ; i++) {
-                            const { body } = await client.get<Repository[]>(
-                                'users/TechQuery/repos?page=' + i
-                            );
-                            if (!body[0]) break;
-
-                            yield* body;
-                        }
-                    }
+                    this.getOrgRepos.bind(this),
+                    this.getUserRepos.bind(this)
                 );
             }
         }
