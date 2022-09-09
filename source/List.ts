@@ -23,9 +23,6 @@ export abstract class ListModel<
     filter: F = {} as F;
 
     @observable
-    noMore = false;
-
-    @observable
     totalCount = 0;
 
     @observable
@@ -42,7 +39,15 @@ export abstract class ListModel<
             .map(page =>
                 page?.[0] ? page : new Array(this.pageSize).fill(undefined)
             )
-            .flat();
+            .flat()
+            .slice(0, this.totalCount);
+    }
+
+    @computed
+    get noMore() {
+        const { totalCount, allItems } = this;
+
+        return !!totalCount && allItems.length >= this.totalCount;
     }
 
     constructor() {
@@ -59,7 +64,6 @@ export abstract class ListModel<
         this.pageIndex = this.totalCount = 0;
         this.pageSize = 10;
         this.filter = {} as F;
-        this.noMore = false;
         this.pageList = [];
 
         return super.clear();
@@ -96,14 +100,6 @@ export abstract class ListModel<
         return { pageData, totalCount };
     }
 
-    flushPage(pageIndex: number, pageSize: number, pageData: D[]) {
-        this.turnTo(pageIndex, pageSize);
-
-        this.noMore = pageData.length < pageSize;
-
-        return pageData;
-    }
-
     @toggle('downloading')
     @action
     async getList(
@@ -118,7 +114,9 @@ export abstract class ListModel<
         );
         this.filter = filter;
 
-        return this.flushPage(pageIndex, pageSize, pageData);
+        this.turnTo(pageIndex, pageSize);
+
+        return pageData;
     }
 }
 
@@ -148,7 +146,9 @@ export function Buffer<
             if (this.pendingList[currentIndex]) {
                 const { pageData } = await this.pendingList[currentIndex];
 
-                return this.flushPage(pageIndex, pageSize, pageData);
+                this.turnTo(pageIndex, pageSize);
+
+                return pageData;
             }
 
             if (this.pageList[currentIndex]) {
@@ -213,7 +213,10 @@ export function Stream<
                 [...this.allItems, ...newList],
                 pageSize
             );
-            return { pageData: this.pageList[pageIndex - 1] };
+            return {
+                pageData: this.pageList[pageIndex - 1] || [],
+                totalCount: this.totalCount
+            };
         }
     }
     return StreamListMixin;

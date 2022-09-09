@@ -8,7 +8,9 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "skipLibCheck": true,
-        "lib": ["ES2022", "DOM", "DOM.Iterable"]
+        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "declaration": true,
+        "outDir": "dist"
     },
     "include": ["source/*"],
     "typedocOptions": {
