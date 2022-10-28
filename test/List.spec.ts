@@ -81,6 +81,8 @@ describe('List model', () => {
         });
 
         it('should clear states', () => {
+            store.clear();
+
             const {
                 pageIndex,
                 pageSize,
@@ -88,12 +90,12 @@ describe('List model', () => {
                 totalCount,
                 noMore,
                 pageList
-            } = store.clear();
+            } = store;
 
             expect([pageIndex, pageSize, totalCount, noMore]).toEqual([
                 0,
                 10,
-                0,
+                undefined,
                 false
             ]);
             expect([filter, pageList].map(isEmpty)).toEqual([true, true]);
