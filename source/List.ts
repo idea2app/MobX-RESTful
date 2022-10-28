@@ -1,7 +1,7 @@
-import { splitArray } from 'web-utility';
+import { IndexKey, TypeKeys, splitArray, countBy } from 'web-utility';
 import { observable, computed, action, reaction } from 'mobx';
 
-import { AbstractClass, DataObject, NewData, toggle } from './utility';
+import { DataObject, AbstractClass, IDType, NewData, toggle } from './utility';
 import { BaseListModel } from './Base';
 
 export interface PageData<D extends DataObject> {
@@ -9,9 +9,13 @@ export interface PageData<D extends DataObject> {
     totalCount?: number;
 }
 
+export type Statistic<D extends DataObject> = Partial<
+    Record<TypeKeys<D, IndexKey>, Record<string, number>>
+>;
+
 export abstract class ListModel<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>
+    F = NewData<D>
 > extends BaseListModel<D> {
     @observable
     pageIndex = 0;
@@ -23,7 +27,7 @@ export abstract class ListModel<
     filter: F = {} as F;
 
     @observable
-    totalCount = 0;
+    totalCount?: number;
 
     @observable
     pageList: D[][] = [];
@@ -34,9 +38,16 @@ export abstract class ListModel<
     }
 
     @computed
+    get pageCount() {
+        return (
+            Math.ceil(this.totalCount / this.pageSize) || this.pageList.length
+        );
+    }
+
+    @computed
     get allItems() {
         return this.pageList
-            .map(page =>
+            .map<D[]>(page =>
                 page?.[0] ? page : new Array(this.pageSize).fill(undefined)
             )
             .flat()
@@ -47,30 +58,52 @@ export abstract class ListModel<
     get noMore() {
         const { totalCount, allItems } = this;
 
-        return !!totalCount && allItems.length >= this.totalCount;
+        return allItems.length >= totalCount;
     }
+
+    @observable
+    statistic: Statistic<D> = {};
 
     constructor() {
         super();
 
         reaction(
             () => this.pageSize,
-            pageSize => (this.pageList = splitArray(this.allItems, pageSize))
+            () => this.restoreList()
         );
     }
 
     @action
-    clear() {
-        this.pageIndex = this.totalCount = 0;
+    clearList() {
+        this.pageIndex = 0;
         this.pageSize = 10;
         this.filter = {} as F;
         this.pageList = [];
+        this.totalCount = undefined;
+    }
 
-        return super.clear();
+    clear() {
+        super.clear();
+        this.clearList();
     }
 
     @action
-    turnTo(pageIndex: number, pageSize = this.pageSize) {
+    restoreList({
+        pageSize = this.pageSize,
+        allItems = this.allItems,
+        totalCount = Infinity
+    }: Partial<
+        Pick<ListModel<D>, 'pageSize' | 'allItems' | 'totalCount'>
+    > = {}) {
+        if (!allItems.length) return;
+
+        this.pageList = splitArray(allItems, pageSize);
+        this.pageSize = pageSize;
+        this.totalCount = totalCount;
+    }
+
+    @action
+    turnTo(pageIndex: number, pageSize = this.pageSize): ListModel<D, F> {
         this.pageIndex = pageIndex;
         this.pageSize = pageSize;
 
@@ -100,8 +133,8 @@ export abstract class ListModel<
         return { pageData, totalCount };
     }
 
-    @toggle('downloading')
     @action
+    @toggle('downloading')
     async getList(
         filter: F = this.filter,
         pageIndex = this.pageIndex + 1,
@@ -118,24 +151,112 @@ export abstract class ListModel<
 
         return pageData;
     }
+
+    refreshList() {
+        const { filter, pageSize } = this;
+
+        this.clearList();
+
+        return this.getList(filter, 1, pageSize);
+    }
+
+    async getAll(filter: F = this.filter, pageSize = this.pageSize) {
+        while (!this.noMore) await this.getList(filter, undefined, pageSize);
+
+        return this.allItems;
+    }
+
+    async countAll(
+        keys: TypeKeys<D, IndexKey>[],
+        filter: F = this.filter,
+        pageSize = this.pageSize
+    ) {
+        const allItems = await this.getAll(filter, pageSize);
+
+        const statistic = Object.fromEntries(
+            keys.map(key => [key, countBy(allItems, key)])
+        ) as Statistic<D>;
+
+        return (this.statistic = statistic);
+    }
+
+    indexOf(id: IDType) {
+        const { indexKey, allItems } = this;
+
+        return allItems.findIndex(({ [indexKey]: ID }) => ID === id);
+    }
+
+    changeOne(data: Partial<D>, id: IDType, patch = false) {
+        const { pageSize, allItems, totalCount } = this,
+            index = this.indexOf(id);
+
+        if (index > -1)
+            this.restoreList({
+                pageSize,
+                allItems: [
+                    ...allItems.slice(0, index),
+                    patch ? { ...allItems[index], ...data } : (data as D),
+                    ...allItems.slice(index + 1)
+                ],
+                totalCount
+            });
+    }
+
+    async updateOne(data: NewData<D>, id?: IDType) {
+        await super.updateOne(data, id);
+
+        if (id) this.changeOne(this.currentOne, id);
+
+        return this.currentOne;
+    }
+
+    async removeOne(id: IDType) {
+        const { filter, pageSize, allItems } = this,
+            index = this.indexOf(id);
+        const { pageData } = await this.loadPage(
+            allItems.length + 1,
+            1,
+            filter
+        );
+        return this.restoreList({
+            pageSize,
+            allItems: [
+                ...allItems.slice(0, index),
+                ...allItems.slice(index + 1),
+                ...pageData
+            ],
+            totalCount: this.totalCount--
+        });
+    }
+
+    @toggle('uploading')
+    async deleteOne(id: IDType) {
+        await super.deleteOne(id);
+        await this.removeOne(id);
+    }
 }
 
 export function Buffer<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>,
+    F = NewData<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
 >(Super: M) {
     abstract class BufferListMixin extends Super {
         pendingList: ReturnType<ListModel<D, F>['loadPage']>[] = [];
 
-        clear() {
-            this.pendingList = [];
+        clearList() {
+            super.clearList();
 
-            return super.clear();
+            this.pendingList = [];
         }
 
-        @toggle('downloading')
+        clear() {
+            super.clear();
+            this.clearList();
+        }
+
         @action
+        @toggle('downloading')
         async getList(
             filter: F = this.filter,
             pageIndex = this.pageIndex + 1,
@@ -175,7 +296,7 @@ export function Buffer<
 
 export function Stream<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>,
+    F = NewData<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
 >(Super: M) {
     abstract class StreamListMixin extends Super {
@@ -184,20 +305,36 @@ export function Stream<
         stream?: AsyncGenerator<D, void, any>;
         abstract openStream(filter: F): AsyncGenerator<D, void, any>;
 
-        clear() {
-            this.stream = undefined;
+        clearList() {
+            super.clearList();
 
-            return super.clear();
+            this.stream = undefined;
         }
 
-        async loadPage(pageIndex: number, pageSize: number, filter: F) {
-            const { totalCount, allItems } = this,
-                newList: D[] = [],
-                requiredCount = pageIndex * pageSize;
-            const newCount =
-                (totalCount
-                    ? Math.min(totalCount, requiredCount)
-                    : requiredCount) - allItems.length;
+        clear() {
+            super.clear();
+            this.clearList();
+        }
+
+        @toggle('downloading')
+        async restoreList({
+            filter = this.filter,
+            pageSize = this.pageSize,
+            allItems = this.allItems,
+            totalCount = Infinity
+        }: Partial<
+            Pick<
+                ListModel<D>,
+                'filter' | 'pageSize' | 'allItems' | 'totalCount'
+            >
+        > = {}) {
+            super.restoreList({ pageSize, allItems, totalCount });
+
+            await this.loadStream(filter as F, allItems.length);
+        }
+
+        async loadStream(filter: F, newCount: number) {
+            const newList: D[] = [];
 
             this.stream ||= this.openStream(filter);
 
@@ -208,6 +345,17 @@ export function Stream<
 
                 newList.push(value as D);
             }
+            return newList;
+        }
+
+        async loadPage(pageIndex: number, pageSize: number, filter: F) {
+            const { totalCount, allItems } = this,
+                requiredCount = pageIndex * pageSize;
+            const newCount =
+                (totalCount
+                    ? Math.min(totalCount, requiredCount)
+                    : requiredCount) - allItems.length;
+            const newList = await this.loadStream(filter, newCount);
 
             this.pageList = splitArray(
                 [...this.allItems, ...newList],

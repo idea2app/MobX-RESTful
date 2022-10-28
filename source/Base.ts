@@ -19,14 +19,13 @@ export abstract class BaseModel {
     @action
     clear() {
         this.downloading = this.uploading = 0;
-
-        return this;
     }
 }
 
 export abstract class BaseListModel<D extends DataObject> extends BaseModel {
     abstract client: RESTClient;
     abstract baseURI: string;
+    indexKey: keyof D = 'id';
 
     @observable
     currentOne: D = {} as D;
@@ -45,11 +44,14 @@ export abstract class BaseListModel<D extends DataObject> extends BaseModel {
     }
 
     @action
-    clear() {
+    clearCurrent() {
         this.currentOne = {} as D;
         this.validity = {};
+    }
 
-        return super.clear();
+    clear() {
+        super.clear();
+        this.clearCurrent();
     }
 
     @toggle('uploading')
@@ -69,7 +71,9 @@ export abstract class BaseListModel<D extends DataObject> extends BaseModel {
     }
 
     @toggle('uploading')
-    async removeOne(id: IDType) {
+    async deleteOne(id: IDType) {
         await this.client.delete(`${this.baseURI}/${id}`);
+
+        if (this.currentOne[this.indexKey] === id) this.clearCurrent();
     }
 }
