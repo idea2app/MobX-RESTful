@@ -1,21 +1,23 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@swc/helpers': ^0.4.11
+  '@swc/helpers': ^0.4.14
   '@types/qs': ^6.9.7
-  mobx-restful: ^0.6.0-rc.6
+  mobx: ^5.15.7
+  mobx-restful: ^0.6.0-rc.19
   parcel: ~2.6.2
   qs: ^6.11.0
-  regenerator-runtime: ^0.13.9
+  regenerator-runtime: ^0.13.11
 
 dependencies:
-  '@swc/helpers': 0.4.11
-  mobx-restful: 0.6.0-rc.6
+  '@swc/helpers': 0.4.14
+  mobx-restful: 0.6.0-rc.19_mobx@5.15.7
   qs: 6.11.0
-  regenerator-runtime: 0.13.9
+  regenerator-runtime: 0.13.11
 
 devDependencies:
   '@types/qs': 6.9.7
+  mobx: 5.15.7
   parcel: 2.6.2
 
 packages:
@@ -800,11 +802,11 @@ packages:
       '@parcel/source-map': 2.1.0
       '@parcel/utils': 2.6.2
       '@parcel/workers': 2.6.2_@parcel+core@2.6.2
-      '@swc/helpers': 0.4.11
+      '@swc/helpers': 0.4.14
       browserslist: 4.21.3
       detect-libc: 1.0.3
       nullthrows: 1.1.1
-      regenerator-runtime: 0.13.9
+      regenerator-runtime: 0.13.11
       semver: 5.7.1
     dev: true
 
@@ -948,8 +950,8 @@ packages:
       nullthrows: 1.1.1
     dev: true
 
-  /@swc/helpers/0.4.11:
-    resolution: {integrity: sha512-rEUrBSGIoSFuYxwBYtlUFMlE2CwGhmW+w9355/5oduSw8e5h2+Tj4UrAGNNgP9915++wj5vkQo0UuOBqOAq4nw==}
+  /@swc/helpers/0.4.14:
+    resolution: {integrity: sha512-4C7nX/dvpzB7za4Ql9K81xK3HPxCpHMgwTZVyf+9JQ6VUbn9jjZVN7/Nkdz/Ugzs2CSjqnL/UPXroiVBVHUWUw==}
     dependencies:
       tslib: 2.4.0
 
@@ -1182,8 +1184,8 @@ packages:
     resolution: {integrity: sha512-dOujC5Yzj0nOVE23iD5HKqrRSDj2SD7RazpZS/b/WX85MtO6/LzKDF4TlYZTBteB+7fvSg5JpWh0sN7fImNF8w==}
     dev: true
 
-  /element-internals-polyfill/1.1.11:
-    resolution: {integrity: sha512-+izpja9BOt31/LK/p/sjyN5x0Vu6STkwnBju5e9X3yIARrzgOz83M9QZE0Kn42v4Z7dKHhXG4AIYPwXvkzkEyQ==}
+  /element-internals-polyfill/1.1.16:
+    resolution: {integrity: sha512-dkH7+GgrFAXaAeNaYQXJjBhE7tLypRljnknkfDIkappmpIe61PPvyA3q7/QXtbhGWmCM9dfU4KZ1szU6Iu7x1A==}
     dev: false
 
   /entities/2.2.0:
@@ -1340,10 +1342,10 @@ packages:
     peerDependencies:
       jsdom: ^20.0.0
     dependencies:
-      '@swc/helpers': 0.4.11
+      '@swc/helpers': 0.4.14
       iterable-observer: 1.0.0-rc.1
-      regenerator-runtime: 0.13.9
-      web-utility: 3.9.2
+      regenerator-runtime: 0.13.11
+      web-utility: 3.9.9
     transitivePeerDependencies:
       - typescript
     dev: false
@@ -1378,21 +1380,25 @@ packages:
     resolution: {integrity: sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==}
     dev: true
 
-  /mobx-restful/0.6.0-rc.6:
-    resolution: {integrity: sha512-gYFw+of43C8akV+LmaRI4MOEkM2oz4CsRC19+7gTi2/ydfVF8gDuW8AZlB9XVVxvm7XJ6dw4Ad8QkqBxrOjX9Q==}
+  /mobx-restful/0.6.0-rc.19_mobx@5.15.7:
+    resolution: {integrity: sha512-88o3fJmSZRoJNpIZWMgum/DgKFxDxYRZhrEr6ovhZOG+346Ahl54x41CxDHQcu7NRFwpxyMwO0j1Ixjw9DSK9A==}
     peerDependencies:
       mobx: '>=4 <6'
     dependencies:
-      '@swc/helpers': 0.4.11
+      '@swc/helpers': 0.4.14
       class-validator: 0.13.2
       koajax: 0.8.3
+      mobx: 5.15.7
       reflect-metadata: 0.1.13
-      regenerator-runtime: 0.13.9
-      web-utility: 3.9.2
+      regenerator-runtime: 0.13.11
+      web-utility: 3.9.9
     transitivePeerDependencies:
       - jsdom
       - typescript
     dev: false
+
+  /mobx/5.15.7:
+    resolution: {integrity: sha512-wyM3FghTkhmC+hQjyPGGFdpehrcX1KOXsDuERhfK2YbJemkUhEB+6wzEN639T21onxlfYBmriA1PFnvxTUhcKw==}
 
   /msgpackr-extract/2.1.2:
     resolution: {integrity: sha512-cmrmERQFb19NX2JABOGtrKdHMyI6RUyceaPBQ2iRz9GnDkjBWFjNJC0jyyoOfZl2U/LZE3tQCCQc4dlRyA8mcA==}
@@ -1567,8 +1573,8 @@ packages:
     resolution: {integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==}
     dev: false
 
-  /regenerator-runtime/0.13.9:
-    resolution: {integrity: sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==}
+  /regenerator-runtime/0.13.11:
+    resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
 
   /resolve-from/4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -1694,14 +1700,14 @@ packages:
     resolution: {integrity: sha512-DEAoo25RfSYMuTGc9vPJzZcZullwIqRDSI9LOy+fkCJPi6hykCnfKaXTuPBDuXAUcqHXyOgFtHNp/kB2FjYHbw==}
     dev: true
 
-  /web-utility/3.9.2:
-    resolution: {integrity: sha512-j/xKi6YeIjXP74jgjxrMcqu95PzvgnZCstHkLNnmHvoxL7bL1uRVbMFPO9qn7mXYA+HPYcdtzW+xk8rhEYRX+g==}
+  /web-utility/3.9.9:
+    resolution: {integrity: sha512-8XGlyodk2X7lgWHZCkiOYPTCwTlBOddL8eEh1KbKhrR+uxL8+kN/RUXpLS1wDfgkhzJq5FRG6PoNCwWh/81QEQ==}
     peerDependencies:
       typescript: ^4.1.0
     dependencies:
-      '@swc/helpers': 0.4.11
-      element-internals-polyfill: 1.1.11
-      regenerator-runtime: 0.13.9
+      '@swc/helpers': 0.4.14
+      element-internals-polyfill: 1.1.16
+      regenerator-runtime: 0.13.11
     dev: false
 
   /xxhash-wasm/0.4.2:

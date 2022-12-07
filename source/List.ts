@@ -51,7 +51,7 @@ export abstract class ListModel<
                 page?.[0] ? page : new Array(this.pageSize).fill(undefined)
             )
             .flat()
-            .slice(0, this.totalCount);
+            .slice(0, this.totalCount || 0);
     }
 
     @computed
