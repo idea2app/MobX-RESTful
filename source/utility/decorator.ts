@@ -13,16 +13,22 @@ export function toggle<T extends BaseModel>(
         meta.value = async function (this: T, ...data: any[]) {
             var value = Reflect.get(this, property);
 
-            const isNumber = typeof value === 'number';
-
-            Reflect.set(this, property, isNumber ? ++value : true);
+            Reflect.set(
+                this,
+                property,
+                typeof value === 'number' ? ++value : true
+            );
 
             try {
                 return await origin.apply(this, data);
             } finally {
                 value = Reflect.get(this, property);
 
-                Reflect.set(this, property, isNumber ? --value : false);
+                Reflect.set(
+                    this,
+                    property,
+                    typeof value === 'number' ? --value : false
+                );
             }
         };
     };
