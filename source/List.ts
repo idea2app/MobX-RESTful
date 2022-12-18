@@ -46,9 +46,16 @@ export abstract class ListModel<
 
     @computed
     get allItems() {
-        return this.pageList
+        const { pageList } = this;
+
+        const index = [...pageList]
+            .reverse()
+            .findIndex(item => item?.[0] != null);
+
+        return pageList
+            .slice(0, -index || Infinity)
             .map<D[]>(page =>
-                page?.[0] ? page : new Array(this.pageSize).fill(undefined)
+                page?.[0] ? page : new Array(this.pageSize).fill({})
             )
             .flat()
             .slice(0, this.totalCount || 0);
