@@ -35,10 +35,22 @@ export type StrapiNestedData<T extends DataObject> = {
         : T[K];
 };
 
+export type StrapiPopulateQuery<D extends DataObject> = {
+    [K in TypeKeys<D, DataObject | DataObject[]>]?: {
+        populate:
+            | '*'
+            | (Required<D>[K] extends (infer I)[]
+                  ? TypeKeys<I, DataObject | DataObject[]>
+                  : TypeKeys<D[K], DataObject>);
+    };
+};
+
 export abstract class StrapiListModel<
     D extends DataObject,
     F extends NewData<D> = NewData<D>
 > extends ListModel<D, F> {
+    populate: StrapiPopulateQuery<D> = {};
+
     searchKeys: Exclude<TypeKeys<D, string>, this['indexKey']>[] = [];
 
     @observable
@@ -48,21 +60,25 @@ export abstract class StrapiListModel<
     get searchFilter() {
         const words = this.keywords.split(/\s+/);
 
+        type OrFilter = Record<
+            Exclude<TypeKeys<D, string>, StrapiListModel<D, F>['indexKey']>,
+            { $containsi: string }
+        >;
         const $or = this.searchKeys
             .map(key => words.map(word => ({ [key]: { $containsi: word } })))
-            .flat();
+            .flat() as OrFilter[];
 
         return { $or };
     }
 
-    protected normalize = ({ id, attributes }: StrapiDataItem<D>) => {
+    protected normalize({ id, attributes }: StrapiDataItem<D>) {
         const data = Object.fromEntries(
             Object.entries(attributes).map(([key, value]) => [
                 key,
                 value?.data
                     ? Array.isArray(value.data)
-                        ? (value as StrapiListWrapper<any>).data.map(
-                              this.normalize
+                        ? (value as StrapiListWrapper<any>).data.map(item =>
+                              this.normalize(item)
                           )
                         : this.normalize(value.data)
                     : value
@@ -70,7 +86,7 @@ export abstract class StrapiListModel<
         ) as D;
 
         return { id, ...data };
-    };
+    }
 
     @toggle('downloading')
     async getOne(id: IDType) {
@@ -91,21 +107,29 @@ export abstract class StrapiListModel<
         return (this.currentOne = this.normalize(body!.data));
     }
 
-    async loadPage(pageIndex: number, pageSize: number, filter: F) {
+    makeFilter(pageIndex: number, pageSize: number, filter: F) {
+        const { populate, keywords } = this;
+
         const filters = Object.fromEntries(
             Object.entries(filter).map(([key, value]) => [key, { $eq: value }])
-        );
+        ) as Record<string, { $eq: any }>;
+
+        return {
+            populate,
+            filters: keywords ? this.searchFilter : filters,
+            pagination: { page: pageIndex, pageSize }
+        };
+    }
+
+    async loadPage(pageIndex: number, pageSize: number, filter: F) {
         const { body } = await this.client.get<StrapiListWrapper<D>>(
             `${this.baseURI}?${stringify(
-                {
-                    filters: this.keywords ? this.searchFilter : filters,
-                    pagination: { page: pageIndex, pageSize }
-                },
+                this.makeFilter(pageIndex, pageSize, filter),
                 { encodeValuesOnly: true }
             )}`
         );
         return {
-            pageData: body!.data.map(this.normalize),
+            pageData: body!.data.map(item => this.normalize(item)),
             totalCount: body!.meta.pagination.total
         };
     }
