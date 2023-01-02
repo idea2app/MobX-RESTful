@@ -1,5 +1,5 @@
 import { IndexKey, TypeKeys, splitArray, countBy } from 'web-utility';
-import { observable, computed, action, reaction } from 'mobx';
+import { observable, computed, action, reaction, toJS } from 'mobx';
 
 import { DataObject, AbstractClass, IDType, NewData, toggle } from './utility';
 import { BaseListModel } from './Base';
@@ -46,7 +46,7 @@ export abstract class ListModel<
 
     @computed
     get allItems() {
-        const { pageList } = this;
+        const pageList = toJS(this.pageList);
 
         const index = [...pageList]
             .reverse()
