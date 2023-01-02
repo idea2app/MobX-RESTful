@@ -193,8 +193,9 @@ export default new MultipleRepository();
 
 ## Scaffold
 
-1.  Progressive Web App (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
-2.  Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
+1.  Client-side Rendering (React): https://github.com/idea2app/Next-Bootstrap-ts
+2.  Server-side Rendering (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
+3.  Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
 
 ## Limitation
 

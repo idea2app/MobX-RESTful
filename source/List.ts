@@ -1,5 +1,5 @@
 import { IndexKey, TypeKeys, splitArray, countBy } from 'web-utility';
-import { observable, computed, action, reaction } from 'mobx';
+import { observable, computed, action, reaction, toJS } from 'mobx';
 
 import { DataObject, AbstractClass, IDType, NewData, toggle } from './utility';
 import { BaseListModel } from './Base';
@@ -15,7 +15,7 @@ export type Statistic<D extends DataObject> = Partial<
 
 export abstract class ListModel<
     D extends DataObject,
-    F = NewData<D>
+    F extends NewData<D> = NewData<D>
 > extends BaseListModel<D> {
     @observable
     pageIndex = 0;
@@ -46,7 +46,7 @@ export abstract class ListModel<
 
     @computed
     get allItems() {
-        const { pageList } = this;
+        const pageList = toJS(this.pageList);
 
         const index = [...pageList]
             .reverse()
@@ -245,7 +245,7 @@ export abstract class ListModel<
 
 export function Buffer<
     D extends DataObject,
-    F = NewData<D>,
+    F extends NewData<D> = NewData<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
 >(Super: M) {
     abstract class BufferListMixin extends Super {
@@ -303,7 +303,7 @@ export function Buffer<
 
 export function Stream<
     D extends DataObject,
-    F = NewData<D>,
+    F extends NewData<D> = NewData<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
 >(Super: M) {
     abstract class StreamListMixin extends Super {
