@@ -1,19 +1,18 @@
 import { TypeKeys } from 'web-utility';
 import { HTTPClient, Context } from 'koajax';
 
-export type AbstractClass<I> = abstract new (...data: any[]) => I;
-
 export type IDType = number | string;
 
 export type DataObject = Record<string, any>;
 
-export type NewData<T extends DataObject> = Partial<
-    Omit<T, TypeKeys<T, DataObject> | TypeKeys<T, DataObject[]>> & {
-        [K in TypeKeys<T, DataObject>]: IDType;
-    } & {
-        [K in TypeKeys<T, DataObject[]>]: IDType[];
-    }
->;
+export type NewData<T extends DataObject> = Omit<
+    T,
+    TypeKeys<T, DataObject> | TypeKeys<T, DataObject[]>
+> & {
+    [K in TypeKeys<T, DataObject>]: IDType;
+} & {
+    [K in TypeKeys<T, DataObject[]>]: IDType[];
+};
 
 export type RESTClient = Pick<
     HTTPClient<Context>,

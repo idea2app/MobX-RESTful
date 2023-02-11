@@ -1,8 +1,7 @@
 import { isEmpty, buildURLData, mergeStream } from 'web-utility';
 import { components } from '@octokit/openapi-types';
 
-import { NewData } from '../source/utility/type';
-import { ListModel, Buffer, Stream } from '../source/List';
+import { Filter, ListModel, Buffer, Stream } from '../source/List';
 import { client } from './service';
 
 type User = components['schemas']['public-user'];
@@ -12,7 +11,7 @@ type Repository = components['schemas']['minimal-repository'];
 describe('List model', () => {
     class RepositoryModel<
         D extends Repository = Repository,
-        F extends NewData<D> = NewData<D>
+        F extends Filter<D> = Filter<D>
     > extends ListModel<D, F> {
         client = client;
         baseURI = 'orgs/idea2app/repos';

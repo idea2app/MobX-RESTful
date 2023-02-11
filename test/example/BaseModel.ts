@@ -8,7 +8,7 @@ import {
     IsOptional
 } from 'class-validator';
 
-import { NewData } from '../../source';
+import { Filter } from '../../source';
 
 export class BaseModel {
     @IsPositive()
@@ -32,7 +32,7 @@ export class UserModel extends BaseModel {
     email: string;
 }
 
-export class UserFilter implements NewData<Omit<UserModel, keyof BaseModel>> {
+export class UserFilter implements Filter<Omit<UserModel, keyof BaseModel>> {
     @IsString()
     @IsOptional()
     username?: string;

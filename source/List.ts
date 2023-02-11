@@ -1,8 +1,16 @@
-import { IndexKey, TypeKeys, splitArray, countBy } from 'web-utility';
+import {
+    AbstractClass,
+    IndexKey,
+    TypeKeys,
+    splitArray,
+    countBy
+} from 'web-utility';
 import { observable, computed, action, reaction, toJS } from 'mobx';
 
-import { DataObject, AbstractClass, IDType, NewData, toggle } from './utility';
+import { DataObject, IDType, NewData, toggle } from './utility';
 import { BaseListModel } from './Base';
+
+export type Filter<T extends DataObject> = Partial<NewData<T>>;
 
 export interface PageData<D extends DataObject> {
     pageData: D[];
@@ -15,7 +23,7 @@ export type Statistic<D extends DataObject> = Partial<
 
 export abstract class ListModel<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>
+    F extends Filter<D> = Filter<D>
 > extends BaseListModel<D> {
     @observable
     pageIndex = 0;
@@ -245,7 +253,7 @@ export abstract class ListModel<
 
 export function Buffer<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>,
+    F extends Filter<D> = Filter<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
 >(Super: M) {
     abstract class BufferListMixin extends Super {
@@ -303,7 +311,7 @@ export function Buffer<
 
 export function Stream<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>,
+    F extends Filter<D> = Filter<D>,
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
 >(Super: M) {
     abstract class StreamListMixin extends Super {
@@ -337,7 +345,8 @@ export function Stream<
         > = {}) {
             super.restoreList({ pageSize, allItems, totalCount });
 
-            await this.loadStream(filter as F, allItems.length);
+            if (allItems.length)
+                await this.loadStream(filter as F, allItems.length);
         }
 
         async loadStream(filter: F, newCount: number) {
