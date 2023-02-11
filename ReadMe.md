@@ -27,7 +27,7 @@ export const client = new HTTPClient({
 
 ```typescript
 import { buildURLData } from 'web-utility';
-import { NewData, ListModel } from 'mobx-restful';
+import { Filter, ListModel } from 'mobx-restful';
 import { components } from '@octokit/openapi-types';
 
 import { client } from './client';
@@ -37,7 +37,7 @@ export type Repository = components['schemas']['minimal-repository'];
 
 export class RepositoryModel<
     D extends Repository = Repository,
-    F extends NewData<D> = NewData<D>
+    F extends Filter<D> = Filter<D>
 > extends ListModel<D, F> {
     client = client;
     baseURI = 'orgs/idea2app/repos';

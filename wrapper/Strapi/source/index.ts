@@ -1,7 +1,14 @@
 import { TypeKeys } from 'web-utility';
 import { stringify } from 'qs';
 import { observable, computed } from 'mobx';
-import { IDType, DataObject, NewData, ListModel, toggle } from 'mobx-restful';
+import {
+    IDType,
+    DataObject,
+    NewData,
+    Filter,
+    ListModel,
+    toggle
+} from 'mobx-restful';
 
 export interface StrapiDataItem<
     A extends DataObject,
@@ -47,7 +54,7 @@ export type StrapiPopulateQuery<D extends DataObject> = {
 
 export abstract class StrapiListModel<
     D extends DataObject,
-    F extends NewData<D> = NewData<D>
+    F extends Filter<D> = Filter<D>
 > extends ListModel<D, F> {
     populate: StrapiPopulateQuery<D> = {};
 
