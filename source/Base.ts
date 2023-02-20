@@ -55,7 +55,7 @@ export abstract class BaseListModel<D extends DataObject> extends BaseModel {
     }
 
     @toggle('uploading')
-    async updateOne(data: NewData<D>, id?: IDType) {
+    async updateOne(data: Partial<NewData<D>>, id?: IDType) {
         const { body } = await (id
             ? this.client.patch<D>(`${this.baseURI}/${id}`, data)
             : this.client.post<D>(this.baseURI, data));

@@ -5,13 +5,13 @@ export type IDType = number | string;
 
 export type DataObject = Record<string, any>;
 
-export type NewData<T extends DataObject> = Omit<
-    T,
-    TypeKeys<T, DataObject> | TypeKeys<T, DataObject[]>
-> & {
-    [K in TypeKeys<T, DataObject>]: IDType;
+export type NewData<
+    D extends DataObject,
+    N extends DataObject = DataObject
+> = Omit<D, TypeKeys<D, N> | TypeKeys<D, N[]>> & {
+    [K in TypeKeys<D, N>]: IDType;
 } & {
-    [K in TypeKeys<T, DataObject[]>]: IDType[];
+    [K in TypeKeys<D, N[]>]: IDType[];
 };
 
 export type RESTClient = Pick<

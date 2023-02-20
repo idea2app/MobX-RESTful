@@ -217,7 +217,7 @@ export abstract class ListModel<
             });
     }
 
-    async updateOne(data: NewData<D>, id?: IDType) {
+    async updateOne(data: Partial<NewData<D>>, id?: IDType) {
         await super.updateOne(data, id);
 
         if (id) this.changeOne(this.currentOne, id);
