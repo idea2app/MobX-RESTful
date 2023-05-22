@@ -352,10 +352,10 @@ export function Stream<
         async loadStream(filter: F, newCount: number) {
             const newList: D[] = [];
 
-            this.stream ||= this.openStream(filter);
+            const stream = (this.stream ||= this.openStream(filter));
 
             for (let i = 0; i < newCount; i++) {
-                const { done, value } = await this.stream.next();
+                const { done, value } = await stream.next();
 
                 if (done) break;
 
