@@ -84,7 +84,7 @@ export abstract class ListModel<
 
         reaction(
             () => this.pageSize,
-            () => this.restoreList()
+            () => this.resize()
         );
     }
 
@@ -102,17 +102,28 @@ export abstract class ListModel<
         this.clearList();
     }
 
+    /**
+     * @protected
+     */
+    resize() {
+        const { allItems } = this;
+
+        if (allItems[0]) this.pageList = splitArray(allItems, this.pageSize);
+    }
+
     @action
     restoreList({
+        pageIndex = this.pageIndex + 1,
         pageSize = this.pageSize,
         allItems = this.allItems,
         totalCount = Infinity
     }: Partial<
-        Pick<ListModel<D>, 'pageSize' | 'allItems' | 'totalCount'>
+        Pick<ListModel<D>, 'pageIndex' | 'pageSize' | 'allItems' | 'totalCount'>
     > = {}) {
         if (!allItems.length) return;
 
         this.pageList = splitArray(allItems, pageSize);
+        this.pageIndex = pageIndex;
         this.pageSize = pageSize;
         this.totalCount = totalCount;
     }
@@ -131,6 +142,9 @@ export abstract class ListModel<
         filter: F
     ): Promise<PageData<D>>;
 
+    /**
+     * @protected
+     */
     async loadNewPage(pageIndex: number, pageSize: number, filter: F) {
         const { pageData, totalCount = Infinity } = await this.loadPage(
             pageIndex,
@@ -202,12 +216,12 @@ export abstract class ListModel<
     }
 
     changeOne(data: Partial<D>, id: IDType, patch = false) {
-        const { pageSize, allItems, totalCount } = this,
+        const { pageIndex, allItems, totalCount } = this,
             index = this.indexOf(id);
 
         if (index > -1)
             this.restoreList({
-                pageSize,
+                pageIndex,
                 allItems: [
                     ...allItems.slice(0, index),
                     patch ? { ...allItems[index], ...data } : (data as D),
@@ -226,7 +240,7 @@ export abstract class ListModel<
     }
 
     async removeOne(id: IDType) {
-        const { filter, pageSize, allItems } = this,
+        const { filter, pageIndex, allItems } = this,
             index = this.indexOf(id);
         const { pageData } = await this.loadPage(
             allItems.length + 1,
@@ -234,7 +248,7 @@ export abstract class ListModel<
             filter
         );
         return this.restoreList({
-            pageSize,
+            pageIndex,
             allItems: [
                 ...allItems.slice(0, index),
                 ...allItems.slice(index + 1),
@@ -334,21 +348,25 @@ export function Stream<
         @toggle('downloading')
         async restoreList({
             filter = this.filter,
+            pageIndex = this.pageIndex + 1,
             pageSize = this.pageSize,
             allItems = this.allItems,
             totalCount = Infinity
         }: Partial<
             Pick<
                 ListModel<D>,
-                'filter' | 'pageSize' | 'allItems' | 'totalCount'
+                'filter' | 'pageIndex' | 'pageSize' | 'allItems' | 'totalCount'
             >
         > = {}) {
-            super.restoreList({ pageSize, allItems, totalCount });
+            super.restoreList({ pageIndex, pageSize, allItems, totalCount });
 
             if (allItems.length)
                 await this.loadStream(filter as F, allItems.length);
         }
 
+        /**
+         * @protected
+         */
         async loadStream(filter: F, newCount: number) {
             const newList: D[] = [];
 
@@ -364,6 +382,9 @@ export function Stream<
             return newList;
         }
 
+        /**
+         * @protected
+         */
         async loadPage(pageIndex: number, pageSize: number, filter: F) {
             const { totalCount, allItems } = this,
                 requiredCount = pageIndex * pageSize;

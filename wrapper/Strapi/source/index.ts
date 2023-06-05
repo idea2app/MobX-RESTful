@@ -48,7 +48,7 @@ export type StrapiPopulateQuery<D extends DataObject> = {
             | '*'
             | (Required<D>[K] extends (infer I)[]
                   ? TypeKeys<I, DataObject | DataObject[]>
-                  : TypeKeys<D[K], DataObject>);
+                  : TypeKeys<Required<D>[K], DataObject>);
     };
 };
 
