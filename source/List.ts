@@ -35,7 +35,7 @@ export abstract class ListModel<
     filter: F = {} as F;
 
     @observable
-    totalCount?: number;
+    totalCount?: number = undefined;
 
     @observable
     pageList: D[][] = [];
@@ -54,19 +54,19 @@ export abstract class ListModel<
 
     @computed
     get allItems() {
-        const pageList = toJS(this.pageList);
+        const pageList = toJS(this.pageList),
+            { pageSize, totalCount } = this;
 
         const index = [...pageList]
             .reverse()
             .findIndex(item => item?.[0] != null);
 
-        return pageList
-            .slice(0, -index || Infinity)
-            .map<D[]>(page =>
-                page?.[0] ? page : new Array(this.pageSize).fill({})
-            )
+        return Array.from<D[], D[]>(
+            pageList.slice(0, -index || Infinity),
+            page => (page?.[0] ? page : new Array(pageSize).fill({}))
+        )
             .flat()
-            .slice(0, this.totalCount || 0);
+            .slice(0, totalCount || 0);
     }
 
     @computed
@@ -78,15 +78,6 @@ export abstract class ListModel<
 
     @observable
     statistic: Statistic<D> = {};
-
-    constructor() {
-        super();
-
-        reaction(
-            () => this.pageSize,
-            () => this.resize()
-        );
-    }
 
     @action
     clearList() {
@@ -100,15 +91,6 @@ export abstract class ListModel<
     clear() {
         super.clear();
         this.clearList();
-    }
-
-    /**
-     * @protected
-     */
-    resize() {
-        const { allItems } = this;
-
-        if (allItems[0]) this.pageList = splitArray(allItems, this.pageSize);
     }
 
     @action
@@ -131,11 +113,18 @@ export abstract class ListModel<
     @action
     turnTo(pageIndex: number, pageSize = this.pageSize): ListModel<D, F> {
         this.pageIndex = pageIndex;
-        this.pageSize = pageSize;
 
+        if (this.pageSize !== pageSize)
+            this.pageList = splitArray(
+                this.allItems,
+                (this.pageSize = pageSize)
+            );
         return this;
     }
 
+    /**
+     * @protected
+     */
     abstract loadPage(
         pageIndex: number,
         pageSize: number,
@@ -162,7 +151,7 @@ export abstract class ListModel<
         return { pageData, totalCount };
     }
 
-    @action
+    // @action  // disabled for @override bug of MobX 6
     @toggle('downloading')
     async getList(
         filter: F = this.filter,

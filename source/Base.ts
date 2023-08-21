@@ -1,5 +1,5 @@
 import { Constructor } from 'web-utility';
-import { observable, action } from 'mobx';
+import { observable, action, makeObservable } from 'mobx';
 import {
     IDType,
     DataObject,
@@ -10,6 +10,10 @@ import {
 } from './utility';
 
 export abstract class BaseModel {
+    constructor() {
+        makeObservable?.(this);
+    }
+
     @observable
     downloading = 0;
 
@@ -22,6 +26,9 @@ export abstract class BaseModel {
     }
 }
 
+/**
+ * This basic class is a middle class, which isn't for direct using
+ */
 export abstract class BaseListModel<D extends DataObject> extends BaseModel {
     abstract client: RESTClient;
     abstract baseURI: string;
