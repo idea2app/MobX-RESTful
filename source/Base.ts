@@ -1,5 +1,6 @@
 import { Constructor } from 'web-utility';
-import { observable, action, makeObservable } from 'mobx';
+import { observable, action } from 'mobx';
+import * as MobX from 'mobx';
 import {
     IDType,
     DataObject,
@@ -11,7 +12,7 @@ import {
 
 export abstract class BaseModel {
     constructor() {
-        makeObservable?.(this);
+        MobX.makeObservable?.(this);
     }
 
     @observable
@@ -30,12 +31,17 @@ export abstract class BaseModel {
  * This basic class is a middle class, which isn't for direct using
  */
 export abstract class BaseListModel<D extends DataObject> extends BaseModel {
+    constructor() {
+        super();
+        MobX.makeObservable?.(this);
+    }
+
     abstract client: RESTClient;
     abstract baseURI: string;
     indexKey: keyof D = 'id';
 
     @observable
-    currentOne: D = {} as D;
+    currentOne = {} as D;
 
     @observable
     validity: InvalidMessage<D> = {};
