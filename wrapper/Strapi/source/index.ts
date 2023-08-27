@@ -1,6 +1,6 @@
 import { TypeKeys } from 'web-utility';
 import { stringify } from 'qs';
-import { observable, computed } from 'mobx';
+import * as MobX from 'mobx';
 import {
     IDType,
     DataObject,
@@ -56,14 +56,19 @@ export abstract class StrapiListModel<
     D extends DataObject,
     F extends Filter<D> = Filter<D>
 > extends ListModel<D, F> {
+    constructor() {
+        super();
+        MobX.makeObservable?.(this);
+    }
+
     populate: StrapiPopulateQuery<D> = {};
 
     searchKeys: Exclude<TypeKeys<D, string>, this['indexKey']>[] = [];
 
-    @observable
+    @MobX.observable
     keywords = '';
 
-    @computed
+    @MobX.computed
     get searchFilter() {
         const words = this.keywords.split(/\s+/);
 

@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.5.1
     version: 0.5.1
   mobx-restful:
-    specifier: ^0.6.5
-    version: 0.6.5(jsdom@22.1.0)(mobx@5.15.7)(typescript@5.1.6)
+    specifier: ^0.6.10
+    version: 0.6.10(jsdom@22.1.0)(mobx@6.10.0)(typescript@5.2.2)
   qs:
     specifier: ^6.11.2
     version: 6.11.2
@@ -19,7 +19,7 @@ dependencies:
     version: 0.14.0
   web-utility:
     specifier: ^4.1.0
-    version: 4.1.0(typescript@5.1.6)
+    version: 4.1.0(typescript@5.2.2)
 
 devDependencies:
   '@parcel/packager-ts':
@@ -27,19 +27,19 @@ devDependencies:
     version: 2.9.3(@parcel/core@2.9.3)
   '@parcel/transformer-typescript-types':
     specifier: ~2.9.3
-    version: 2.9.3(@parcel/core@2.9.3)(typescript@5.1.6)
+    version: 2.9.3(@parcel/core@2.9.3)(typescript@5.2.2)
   '@types/qs':
     specifier: ^6.9.7
     version: 6.9.7
   mobx:
-    specifier: ^5.15.7
-    version: 5.15.7
+    specifier: ^6.10.0
+    version: 6.10.0
   parcel:
     specifier: ~2.9.3
     version: 2.9.3(@swc/helpers@0.5.1)
   typescript:
-    specifier: ~5.1.6
-    version: 5.1.6
+    specifier: ~5.2.2
+    version: 5.2.2
 
 packages:
 
@@ -822,7 +822,7 @@ packages:
       - '@parcel/core'
     dev: true
 
-  /@parcel/transformer-typescript-types@2.9.3(@parcel/core@2.9.3)(typescript@5.1.6):
+  /@parcel/transformer-typescript-types@2.9.3(@parcel/core@2.9.3)(typescript@5.2.2):
     resolution: {integrity: sha512-W+Ze3aUTdZuBQokXlkEQ/1hUApUm6VRyYzPqEs9jcqCqU8mv18i5ZGAz4bMuIJOBprp7M2wt10SJJx/SC1pl1A==}
     engines: {node: '>= 12.0.0', parcel: ^2.9.3}
     peerDependencies:
@@ -831,22 +831,22 @@ packages:
       '@parcel/diagnostic': 2.9.3
       '@parcel/plugin': 2.9.3(@parcel/core@2.9.3)
       '@parcel/source-map': 2.1.1
-      '@parcel/ts-utils': 2.9.3(typescript@5.1.6)
+      '@parcel/ts-utils': 2.9.3(typescript@5.2.2)
       '@parcel/utils': 2.9.3
       nullthrows: 1.1.1
-      typescript: 5.1.6
+      typescript: 5.2.2
     transitivePeerDependencies:
       - '@parcel/core'
     dev: true
 
-  /@parcel/ts-utils@2.9.3(typescript@5.1.6):
+  /@parcel/ts-utils@2.9.3(typescript@5.2.2):
     resolution: {integrity: sha512-MiQoXFV8I4IWZT/q5yolKN/gnEY5gZfGB2X7W9WHJbRgyjlT/A5cPERXzVBj6mc3/VM1GdZJz76w637GUcQhow==}
     engines: {node: '>= 12.0.0'}
     peerDependencies:
       typescript: '>=3.0.0'
     dependencies:
       nullthrows: 1.1.1
-      typescript: 5.1.6
+      typescript: 5.2.2
     dev: true
 
   /@parcel/types@2.9.3(@parcel/core@2.9.3):
@@ -1717,7 +1717,7 @@ packages:
     hasBin: true
     dev: true
 
-  /koajax@0.8.6(jsdom@22.1.0)(typescript@5.1.6):
+  /koajax@0.8.6(jsdom@22.1.0)(typescript@5.2.2):
     resolution: {integrity: sha512-XcI6q8xs/amvbQLtu1uRdgsOvT31WKUzdZ33oZqfWsSIB/k7qwhoTd1ut9U5GzYydDnatOLHRisS71FFp5bxKA==}
     peerDependencies:
       jsdom: '>=21'
@@ -1726,7 +1726,7 @@ packages:
       iterable-observer: 1.0.0
       jsdom: 22.1.0
       regenerator-runtime: 0.13.11
-      web-utility: 4.1.0(typescript@5.1.6)
+      web-utility: 4.1.0(typescript@5.2.2)
     transitivePeerDependencies:
       - typescript
     dev: false
@@ -1877,25 +1877,25 @@ packages:
       mime-db: 1.52.0
     dev: false
 
-  /mobx-restful@0.6.5(jsdom@22.1.0)(mobx@5.15.7)(typescript@5.1.6):
-    resolution: {integrity: sha512-wOTNa7an3BRo7tWl9jtIpQ1yoP71Ikm9EA6WxIoDMGakoI+W9J34oShO9jMYZe7VbKzM8gjFZf+QZLxIuUsHfw==}
+  /mobx-restful@0.6.10(jsdom@22.1.0)(mobx@6.10.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-MZWhkdP5RBTGB0O/Y/D7nIy246Pz0AXDVkdRrKr9+AnpTB4x/g53xwsno5yWR2FasyJygpCtOYPJ59CE+Tb9Pw==}
     peerDependencies:
-      mobx: '>=4 <6'
+      mobx: '>=4'
     dependencies:
-      '@swc/helpers': 0.4.36
+      '@swc/helpers': 0.5.1
       class-validator: 0.14.0
-      koajax: 0.8.6(jsdom@22.1.0)(typescript@5.1.6)
-      mobx: 5.15.7
+      koajax: 0.8.6(jsdom@22.1.0)(typescript@5.2.2)
+      mobx: 6.10.0
       reflect-metadata: 0.1.13
-      regenerator-runtime: 0.13.11
-      web-utility: 4.1.0(typescript@5.1.6)
+      regenerator-runtime: 0.14.0
+      web-utility: 4.1.0(typescript@5.2.2)
     transitivePeerDependencies:
       - jsdom
       - typescript
     dev: false
 
-  /mobx@5.15.7:
-    resolution: {integrity: sha512-wyM3FghTkhmC+hQjyPGGFdpehrcX1KOXsDuERhfK2YbJemkUhEB+6wzEN639T21onxlfYBmriA1PFnvxTUhcKw==}
+  /mobx@6.10.0:
+    resolution: {integrity: sha512-WMbVpCMFtolbB8swQ5E2YRrU+Yu8iLozCVx3CdGjbBKlP7dFiCSuiG06uea3JCFN5DnvtAX7+G5Bp82e2xu0ww==}
 
   /ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
@@ -2249,8 +2249,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /typescript@5.1.6:
-    resolution: {integrity: sha512-zaWCozRZ6DLEWAWFrVDz1H6FVXzUSfTy5FUMWsQlU8Ym5JP9eO4xkTIROFCQvhQf61z6O/G6ugw3SgAnvvm+HA==}
+  /typescript@5.2.2:
+    resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -2298,7 +2298,7 @@ packages:
     resolution: {integrity: sha512-DEAoo25RfSYMuTGc9vPJzZcZullwIqRDSI9LOy+fkCJPi6hykCnfKaXTuPBDuXAUcqHXyOgFtHNp/kB2FjYHbw==}
     dev: true
 
-  /web-utility@4.1.0(typescript@5.1.6):
+  /web-utility@4.1.0(typescript@5.2.2):
     resolution: {integrity: sha512-3xH9M3F5nXcqXxlRqL24gv0+MewfOw/V1sSTOxXGuxYAxGz+IurDbZ4tsZZV/cZca4bPQEHqXcukfMLccNggkA==}
     peerDependencies:
       typescript: '>=4.1.0'
@@ -2306,7 +2306,7 @@ packages:
       '@swc/helpers': 0.4.36
       element-internals-polyfill: 1.3.7
       regenerator-runtime: 0.13.11
-      typescript: 5.1.6
+      typescript: 5.2.2
     dev: false
 
   /webidl-conversions@7.0.0:
