@@ -2,6 +2,7 @@
 
 [MobX][1] SDK for [Strapi][2] headless CMS
 
+[![MobX compatibility](https://img.shields.io/badge/Compatible-1?logo=mobx&label=MobX%204%2F5%2F6)][1]
 [![NPM Dependency](https://img.shields.io/librariesio/release/npm/mobx-strapi)][3]
 [![](https://raw.githubusercontent.com/sindresorhus/awesome/main/media/mentioned-badge.svg)][4]
 
