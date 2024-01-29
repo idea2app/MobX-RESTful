@@ -10,8 +10,11 @@
 
 ## Version
 
-1. ~~Strapi v3: [`master`][6] branch~~ (deprecated)
-2. Strapi v4: current branch
+|    SemVer    |  branch  |    status    | ES decorator |    MobX     | Strapi |
+| :----------: | :------: | :----------: | :----------: | :---------: | :----: |
+|   `>=0.5`    |  `main`  | ✅developing |   stage-3    |  `>=6.11`   |   v4   |
+| `>=0.3 <0.5` |  `main`  | ❌deprecated |   stage-2    | `>=4 <6.11` |   v4   |
+|    `<0.3`    | `master` | ❌deprecated |   stage-2    |  `>=4 <6`   |   v3   |
 
 ## Usage
 

@@ -1,2 +1,3 @@
 export * from './type';
-export * from './decorator';
+// disabled without shipped https://github.com/tc39/proposal-class-method-parameter-decorators
+// export * from './decorator';

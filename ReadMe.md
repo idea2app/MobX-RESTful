@@ -10,6 +10,13 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 
 [![NPM](https://nodei.co/npm/mobx-restful.png?downloads=true&downloadRank=true&stars=true)][5]
 
+## Versions
+
+|  SemVer   |    status    | ES decorator |    MobX     |
+| :-------: | :----------: | :----------: | :---------: |
+| `>=0.7.0` | ✅developing |   stage-3    |  `>=6.11`   |
+| `<0.7.0`  | ❌deprecated |   stage-2    | `>=4 <6.11` |
+
 ## Usage
 
 ### Simple List
@@ -65,15 +72,13 @@ export default new RepositoryModel();
 Use [WebCell][6] as an Example
 
 ```tsx
-import { WebCell, component, observer, createCell } from 'web-cell';
+import { component, observer } from 'web-cell';
 
 import repositoryStore from '../model/Repository';
 
-@component({
-    tagName: 'repository-page'
-})
+@component({ tagName: 'repository-page' })
 @observer
-export class RepositoryPage extends WebCell() {
+export class RepositoryPage extends HTMLElement {
     connectedCallback() {
         repositoryStore.getList();
     }
@@ -88,7 +93,7 @@ export class RepositoryPage extends WebCell() {
         return (
             <ul>
                 {currentPage.map(({ full_name, html_url }) => (
-                    <li>
+                    <li key={full_name}>
                         <a target="_blank" href={html_url}>
                             {full_name}
                         </a>
