@@ -8,8 +8,8 @@ import {
     splitArray
 } from 'web-utility';
 
-import { BaseListModel } from './Base';
-import { DataObject, IDType, NewData, toggle } from './utility';
+import { BaseListModel, toggle } from './Base';
+import { DataObject, IDType, NewData } from './utility';
 
 export type Filter<T extends DataObject> = Partial<NewData<T>>;
 
@@ -32,19 +32,19 @@ export abstract class ListModel<
     }
 
     @observable
-    pageIndex = 0;
+    accessor pageIndex = 0;
 
     @observable
-    pageSize = 10;
+    accessor pageSize = 10;
 
     @observable
-    filter = {} as F;
+    accessor filter = {} as F;
 
     @observable
-    totalCount?: number = undefined;
+    accessor totalCount: number | undefined;
 
     @observable
-    pageList: D[][] = [];
+    accessor pageList: D[][] = [];
 
     @computed
     get currentPage() {
@@ -83,7 +83,7 @@ export abstract class ListModel<
     }
 
     @observable
-    statistic: Statistic<D> = {};
+    accessor statistic: Statistic<D> = {};
 
     @action
     clearList() {

@@ -1,25 +1,13 @@
-import { Constructor } from 'web-utility';
+import { Constructor, TypeKeys } from 'web-utility';
 import { observable, action } from 'mobx';
-import * as MobX from 'mobx';
-import {
-    IDType,
-    DataObject,
-    NewData,
-    InvalidMessage,
-    RESTClient,
-    toggle
-} from './utility';
+import { IDType, DataObject, NewData, RESTClient } from './utility';
 
 export abstract class BaseModel {
-    constructor() {
-        MobX.makeObservable?.(this);
-    }
+    @observable
+    accessor downloading = 0;
 
     @observable
-    downloading = 0;
-
-    @observable
-    uploading = 0;
+    accessor uploading = 0;
 
     @action
     clear() {
@@ -27,24 +15,49 @@ export abstract class BaseModel {
     }
 }
 
+export function toggle<T extends BaseModel>(
+    property: TypeKeys<T, boolean | number>
+) {
+    return (
+        origin: (...data: any[]) => Promise<any>,
+        {}: ClassMethodDecoratorContext
+    ) =>
+        async function (this: T, ...data: any[]) {
+            var value = Reflect.get(this, property);
+
+            Reflect.set(
+                this,
+                property,
+                typeof value === 'number' ? ++value : true
+            );
+
+            try {
+                return await origin.apply(this, data);
+            } finally {
+                value = Reflect.get(this, property);
+
+                Reflect.set(
+                    this,
+                    property,
+                    typeof value === 'number' ? --value : false
+                );
+            }
+        };
+}
+
 /**
  * This basic class is a middle class, which isn't for direct using
  */
 export abstract class BaseListModel<D extends DataObject> extends BaseModel {
-    constructor() {
-        super();
-        MobX.makeObservable?.(this);
-    }
-
     abstract client: RESTClient;
     abstract baseURI: string;
     indexKey: keyof D = 'id';
 
     @observable
-    currentOne = {} as D;
+    accessor currentOne = {} as D;
 
-    @observable
-    validity: InvalidMessage<D> = {};
+    // @observable
+    // validity: InvalidMessage<D> = {};
 
     static createNested(parentId: IDType) {
         const Model = this as unknown as Constructor<BaseListModel<{}>>;
@@ -59,7 +72,7 @@ export abstract class BaseListModel<D extends DataObject> extends BaseModel {
     @action
     clearCurrent() {
         this.currentOne = {} as D;
-        this.validity = {};
+        // this.validity = {};
     }
 
     clear() {
