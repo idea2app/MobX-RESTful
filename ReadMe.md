@@ -4,7 +4,7 @@ Common [MobX][1] **abstract base Class & Decorator** utilities for [RESTful API]
 
 Just define your **Data models** & **Client HTTP methods**, then leave rest of things to MobX!
 
-[![MobX compatibility](https://img.shields.io/badge/Compatible-1?logo=mobx&label=MobX%204%2F5%2F6)][1]
+[![MobX compatibility](https://img.shields.io/badge/Compatible-1?logo=mobx&label=MobX%206%2F7)][1]
 [![NPM Dependency](https://img.shields.io/librariesio/github/idea2app/MobX-RESTful.svg)][3]
 [![CI & CD](https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml/badge.svg)][4]
 
@@ -18,6 +18,20 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 | `<0.7.0`  | ❌deprecated |   stage-2    | `>=4 <6.11` |
 
 ## Usage
+
+### `tsconfig.json`
+
+```json
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "moduleResolution": "Node",
+        "useDefineForClassFields": true,
+        "experimentalDecorators": false,
+        "jsx": "react-jsx"
+    }
+}
+```
 
 ### Simple List
 

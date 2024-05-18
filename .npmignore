@@ -1,7 +1,7 @@
 wrapper/
 test/
 .env
-.parcel-cache/
+.parcel*
 docs/
 .husky/
 .github/

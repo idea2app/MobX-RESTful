@@ -1,6 +1,7 @@
 import { sleep } from 'web-utility';
 
-import { toggle, BaseModel, BaseListModel } from '../source/Base';
+import { BaseModel, BaseListModel } from '../source/Base';
+import { toggle } from '../source/utility';
 import { client } from './service';
 
 describe('Base model', () => {

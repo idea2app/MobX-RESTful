@@ -1,6 +1,7 @@
-import { Constructor, TypeKeys } from 'web-utility';
+import { Constructor } from 'web-utility';
 import { observable, action } from 'mobx';
-import { IDType, DataObject, NewData, RESTClient } from './utility';
+
+import { IDType, DataObject, NewData, RESTClient, toggle } from './utility';
 
 export abstract class BaseModel {
     @observable
@@ -13,36 +14,6 @@ export abstract class BaseModel {
     clear() {
         this.downloading = this.uploading = 0;
     }
-}
-
-export function toggle<T extends BaseModel>(
-    property: TypeKeys<T, boolean | number>
-) {
-    return (
-        origin: (...data: any[]) => Promise<any>,
-        {}: ClassMethodDecoratorContext
-    ) =>
-        async function (this: T, ...data: any[]) {
-            var value = Reflect.get(this, property);
-
-            Reflect.set(
-                this,
-                property,
-                typeof value === 'number' ? ++value : true
-            );
-
-            try {
-                return await origin.apply(this, data);
-            } finally {
-                value = Reflect.get(this, property);
-
-                Reflect.set(
-                    this,
-                    property,
-                    typeof value === 'number' ? --value : false
-                );
-            }
-        };
 }
 
 /**

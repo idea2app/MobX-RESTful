@@ -1,5 +1,4 @@
 import { action, computed, observable, toJS } from 'mobx';
-import * as MobX from 'mobx';
 import {
     AbstractClass,
     IndexKey,
@@ -8,8 +7,8 @@ import {
     splitArray
 } from 'web-utility';
 
-import { BaseListModel, toggle } from './Base';
-import { DataObject, IDType, NewData } from './utility';
+import { BaseListModel } from './Base';
+import { DataObject, IDType, NewData, toggle } from './utility';
 
 export type Filter<T extends DataObject> = Partial<NewData<T>>;
 
@@ -26,11 +25,6 @@ export abstract class ListModel<
     D extends DataObject,
     F extends Filter<D> = Filter<D>
 > extends BaseListModel<D> {
-    constructor() {
-        super();
-        MobX.makeObservable?.(this);
-    }
-
     @observable
     accessor pageIndex = 0;
 
