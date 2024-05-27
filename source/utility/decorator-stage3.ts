@@ -63,7 +63,7 @@ export function toggleNotification<T extends BaseModel>(
 interface PersistMeta<V = any, S = any> {
     key: string;
     set?: (value: V) => S;
-    get?: (value: S) => V;
+    get?: (value?: S) => V;
 }
 const PersistKeys = new WeakMap<any, PersistMeta[]>();
 

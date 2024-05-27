@@ -4,7 +4,7 @@ import type { FileSystemHandle } from 'native-file-system-adapter';
 import { ReadableStream } from 'web-streams-polyfill';
 import { ByteSize } from 'web-utility';
 
-import { destroy, persist, restore } from '../utility';
+import { destroy, persist } from '../utility';
 
 export abstract class DownloadTask implements Partial<TransferProgress> {
     @persist()
@@ -12,7 +12,7 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
     accessor id = '';
 
     @persist()
-    @observable.shallow
+    @observable.ref
     accessor fsHandle: FileSystemHandle | undefined;
 
     @persist()
@@ -49,9 +49,7 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
     constructor(
         public name: string,
         public path: string
-    ) {
-        restore(this, this.id);
-    }
+    ) {}
 
     toJSON() {
         const { id, name, path, fsHandle, total, loaded, percent, options } =

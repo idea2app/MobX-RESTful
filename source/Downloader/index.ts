@@ -5,6 +5,9 @@ import { persist, restore } from '../utility';
 import { HTTPDownloadTask } from './HTTP';
 import { DownloadTask } from './Task';
 
+export * from './HTTP';
+export * from './Task';
+
 export class Downloader {
     static protocolMap: Record<string, Constructor<DownloadTask>> = {
         http: HTTPDownloadTask,
@@ -29,7 +32,7 @@ export class Downloader {
     @persist({
         set: tasks => tasks.map(({ name, path }) => ({ name, path })),
         get: list =>
-            list.map(({ name, path }) => Downloader.createTask(name, path))
+            list?.map(({ name, path }) => Downloader.createTask(name, path))
     })
     @observable
     accessor tasks: DownloadTask[] = [];

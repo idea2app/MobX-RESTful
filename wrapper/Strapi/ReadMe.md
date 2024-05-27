@@ -2,7 +2,7 @@
 
 [MobX][1] SDK for [Strapi][2] headless CMS
 
-[![MobX compatibility](https://img.shields.io/badge/Compatible-1?logo=mobx&label=MobX%204%2F5%2F6)][1]
+[![MobX compatibility](https://img.shields.io/badge/Compatible-1?logo=mobx&label=MobX%206%2F7)][1]
 [![NPM Dependency](https://img.shields.io/librariesio/release/npm/mobx-strapi)][3]
 [![](https://raw.githubusercontent.com/sindresorhus/awesome/main/media/mentioned-badge.svg)][4]
 
@@ -10,16 +10,32 @@
 
 ## Version
 
-|    SemVer    |  branch  |    status    | ES decorator |    MobX     | Strapi |
-| :----------: | :------: | :----------: | :----------: | :---------: | :----: |
-|   `>=0.5`    |  `main`  | ✅developing |   stage-3    |  `>=6.11`   |   v4   |
-| `>=0.3 <0.5` |  `main`  | ❌deprecated |   stage-2    | `>=4 <6.11` |   v4   |
-|    `<0.3`    | `master` | ❌deprecated |   stage-2    |  `>=4 <6`   |   v3   |
+|    SemVer    |    branch     |    status    | ES decorator |    MobX     | Strapi |
+| :----------: | :-----------: | :----------: | :----------: | :---------: | :----: |
+|   `>=0.5`    |    `main`     | ✅developing |   stage-3    |  `>=6.11`   |   v4   |
+| `>=0.3 <0.5` |    `main`     | ❌deprecated |   stage-2    | `>=4 <6.11` |   v4   |
+|    `<0.3`    | [`master`][6] | ❌deprecated |   stage-2    |  `>=4 <6`   |   v3   |
 
 ## Usage
 
+### Installation
+
 ```shell
 npm i mobx-restful mobx-strapi koajax
+```
+
+### `tsconfig.json`
+
+```json
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "moduleResolution": "Node",
+        "useDefineForClassFields": true,
+        "experimentalDecorators": false,
+        "jsx": "react-jsx"
+    }
+}
 ```
 
 ### `model/service.ts`
@@ -55,15 +71,13 @@ export default new ArticleModel();
 Use [WebCell][7] as an Example
 
 ```tsx
-import { WebCell, component, observer, createCell } from 'web-cell';
+import { component, observer } from 'web-cell';
 
 import articleStore from '../../model/Article';
 
-@component({
-    tagName: 'article-page'
-})
+@component({ tagName: 'article-page' })
 @observer
-export class ArticlePage extends WebCell() {
+export class ArticlePage extends HTMLElement {
     connectedCallback() {
         articleStore.getList();
     }
@@ -78,7 +92,7 @@ export class ArticlePage extends WebCell() {
         return (
             <ul>
                 {currentPage.map(({ id, title, summary }) => (
-                    <li>
+                    <li key={id}>
                         <a href={`#/article/${id}`}>{title}</a>
                         <p>{summary}</p>
                     </li>

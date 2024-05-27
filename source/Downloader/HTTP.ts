@@ -4,6 +4,7 @@ import {
     showSaveFilePicker
 } from 'native-file-system-adapter';
 
+import { restore } from '../utility';
 import { DownloadTask } from './Task';
 
 export class HTTPDownloadTask extends DownloadTask {
@@ -16,6 +17,8 @@ export class HTTPDownloadTask extends DownloadTask {
         super(name, path);
 
         this.id = `http-download-task-${name}`;
+
+        restore(this, this.id);
     }
 
     async *loadStream(options?: DownloadOptions) {
