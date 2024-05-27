@@ -7,8 +7,6 @@ import {
 import { DownloadTask } from './Task';
 
 export class HTTPDownloadTask extends DownloadTask {
-    declare fsHandle?: FileSystemFileHandle;
-
     client = new HTTPClient({ responseType: 'arraybuffer' });
 
     constructor(
@@ -28,13 +26,13 @@ export class HTTPDownloadTask extends DownloadTask {
             .at(-1);
 
         try {
-            this.fsHandle ||= await showSaveFilePicker({
-                suggestedName
-            });
+            this.fsHandle ||= await showSaveFilePicker({ suggestedName });
         } catch {
             return;
         }
-        const writer = await this.fsHandle.createWritable({
+        const writer = await (
+                this.fsHandle as FileSystemFileHandle
+            ).createWritable({
                 keepExistingData: true
             }),
             stream = this.client.download(path, {

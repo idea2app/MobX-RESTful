@@ -1,11 +1,12 @@
-import { get, getMany, set } from 'idb-keyval';
 import { computed, observable } from 'mobx';
+import { Constructor } from 'web-utility';
 
+import { persist, restore } from '../utility';
 import { HTTPDownloadTask } from './HTTP';
-import type { DownloadTask, DownloadTaskClass } from './Task';
+import { DownloadTask } from './Task';
 
 export class Downloader {
-    static protocolMap: Record<string, DownloadTaskClass> = {
+    static protocolMap: Record<string, Constructor<DownloadTask>> = {
         http: HTTPDownloadTask,
         https: HTTPDownloadTask
     };
@@ -18,14 +19,18 @@ export class Downloader {
             throw new URIError(
                 `Protocol "${protocol} has not been registered"`
             );
-
-        return ProtocolTask.create(name, path);
+        return new ProtocolTask(name, path);
     }
 
     constructor() {
-        this.restoreTasks();
+        restore(this, 'downloader');
     }
 
+    @persist({
+        set: tasks => tasks.map(({ name, path }) => ({ name, path })),
+        get: list =>
+            list.map(({ name, path }) => Downloader.createTask(name, path))
+    })
     @observable
     accessor tasks: DownloadTask[] = [];
 
@@ -39,46 +44,24 @@ export class Downloader {
         return this.tasks.filter(({ executing }) => executing).length;
     }
 
-    saveTasks() {
-        return set(
-            'downloader-tasks',
-            this.tasks.map(({ id }) => id)
-        );
-    }
+    createTask(name: string, path: string) {
+        const { tasks } = this,
+            task = Downloader.createTask(name, path);
 
-    async restoreTasks() {
-        const list = await get<string[]>('downloader-tasks');
+        if (!tasks.find(task => task.path === path))
+            this.tasks = [...tasks, task];
 
-        if (!list) return;
-
-        const dataList = (await getMany<DownloadTask>(list)).filter(Boolean);
-
-        this.tasks = await Promise.all(
-            dataList.map(({ name, path }) => Downloader.createTask(name, path))
-        );
-        return this.tasks;
-    }
-
-    async createTask(name: string, path: string) {
-        const task = await Downloader.createTask(name, path);
-
-        if (!this.tasks.find(task => task.path === path)) {
-            this.tasks.push(task);
-
-            await this.saveTasks();
-        }
         return task;
     }
 
     async destroyTask(name: string) {
-        const index = this.tasks.findIndex(({ name: N }) => N === name);
+        const { tasks } = this;
+        const index = tasks.findIndex(({ name: N }) => N === name);
 
         if (index < 0) throw new ReferenceError(`${name} isn't found`);
 
-        const [task] = this.tasks.splice(index, 1);
+        await tasks[index].destroy();
 
-        await task.destroy();
-
-        await this.saveTasks();
+        this.tasks = [...tasks.slice(0, index), ...tasks.slice(index + 1)];
     }
 }

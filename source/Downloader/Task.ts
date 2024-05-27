@@ -1,28 +1,38 @@
-import { del, get, set } from 'idb-keyval';
 import type { DownloadOptions, TransferProgress } from 'koajax';
-import { computed, observable, reaction, toJS } from 'mobx';
+import { computed, observable, reaction } from 'mobx';
 import type { FileSystemHandle } from 'native-file-system-adapter';
 import { ReadableStream } from 'web-streams-polyfill';
 import { ByteSize } from 'web-utility';
 
+import { destroy, persist, restore } from '../utility';
+
 export abstract class DownloadTask implements Partial<TransferProgress> {
-    id = '';
+    @persist()
+    @observable
+    accessor id = '';
 
-    fsHandle?: FileSystemHandle;
+    @persist()
+    @observable.shallow
+    accessor fsHandle: FileSystemHandle | undefined;
 
+    @persist()
     @observable
     accessor total = 0;
 
+    @persist()
     @observable
     accessor loaded = 0;
 
+    @persist()
     @observable
     accessor percent = 0;
 
     @observable
     accessor executing = false;
 
-    options?: DownloadOptions;
+    @persist()
+    @observable
+    accessor options: DownloadOptions | undefined;
 
     stream?: ReadableStream<Partial<TransferProgress>>;
 
@@ -39,7 +49,9 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
     constructor(
         public name: string,
         public path: string
-    ) {}
+    ) {
+        restore(this, this.id);
+    }
 
     toJSON() {
         const { id, name, path, fsHandle, total, loaded, percent, options } =
@@ -51,23 +63,10 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
         };
     }
 
-    async saveMeta(data: Partial<TransferProgress> = {}) {
+    saveMeta(data: Partial<TransferProgress> = {}) {
         const { buffer, ...progress } = data;
-        const meta = Object.assign(this, progress).toJSON();
 
-        for (const key in meta) {
-            const value = Reflect.get(meta, key);
-
-            if (value && typeof value === 'object')
-                Reflect.set(
-                    meta,
-                    key,
-                    typeof Reflect.get(value, 'toJSON') === 'function'
-                        ? JSON.parse(JSON.stringify(value))
-                        : toJS(value)
-                );
-        }
-        await set(this.id, meta);
+        Object.assign(this, progress);
 
         return data;
     }
@@ -97,7 +96,7 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
     async destroy() {
         await this.pause();
 
-        return del(this.id);
+        return destroy(this, this.id);
     }
 
     onFinished(callback: (task: DownloadTask) => any) {
@@ -106,16 +105,4 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
             () => callback(this)
         );
     }
-
-    static async create(name: string, path: string) {
-        const task = Reflect.construct(this, [name, path]) as DownloadTask,
-            cache = await get<DownloadTask>(task.id);
-
-        return Object.assign(task, cache, { path }) as DownloadTask;
-    }
-}
-
-export interface DownloadTaskClass {
-    new (name: string, path: string): DownloadTask;
-    create(name: string, path: string): Promise<DownloadTask>;
 }

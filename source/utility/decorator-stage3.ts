@@ -1,4 +1,4 @@
-import { get, set } from 'idb-keyval';
+import { del, get as load, set as save } from 'idb-keyval';
 import { reaction, toJS } from 'mobx';
 import { TypeKeys, isEmpty } from 'web-utility';
 
@@ -37,10 +37,11 @@ export function toggle<T extends BaseModel>(
 export function toggleNotification<T extends BaseModel>(
     message: string | ((instance: T) => string)
 ) {
-    return (target: any, key: string, meta: PropertyDescriptor) => {
-        const origin = meta.value as (...data: any[]) => Promise<any>;
-
-        meta.value = async function (this: T, ...data: any[]) {
+    return (
+        origin: (...data: any[]) => Promise<any>,
+        {}: ClassMemberDecoratorContext
+    ) =>
+        async function (this: T, ...data: any[]) {
             const notification = Notification.requestPermission().then(
                 permission => {
                     if (permission === 'granted')
@@ -57,42 +58,43 @@ export function toggleNotification<T extends BaseModel>(
                 notification.then(notification => notification?.close());
             }
         };
+}
+
+interface PersistMeta<V = any, S = any> {
+    key: string;
+    set?: (value: V) => S;
+    get?: (value: S) => V;
+}
+const PersistKeys = new WeakMap<any, PersistMeta[]>();
+
+export function persist<T, V, S>(patcher: Omit<PersistMeta<V, S>, 'key'> = {}) {
+    return (
+        {}: ClassAccessorDecoratorTarget<T, V>,
+        { name, addInitializer }: ClassAccessorDecoratorContext<T, V>
+    ) => {
+        addInitializer(function () {
+            const list = PersistKeys.get(this) || [];
+
+            list.push({ ...patcher, key: name.toString() });
+
+            PersistKeys.set(this, list);
+        });
     };
 }
 
-const PersistKeys = new WeakMap<any, string[]>();
-
-export function persist(target: any, key: string) {
-    const keys = PersistKeys.get(target) || [];
-
-    keys.push(key);
-
-    PersistKeys.set(target, keys);
-}
-
-export type PersistPatcher<T> = {
-    [K in keyof T]?: {
-        get?: (value: any) => T[K];
-        set?: (value: T[K]) => any;
-    };
-};
-
-export async function onRestore<T extends object>(
-    storeKey: string,
+export async function restore<T extends object>(
     classInstance: T,
-    patcher?: PersistPatcher<T>
+    storeKey: string
 ) {
-    const keys = PersistKeys.get(Object.getPrototypeOf(classInstance)) as
-            | (keyof T)[]
-            | undefined,
+    const list = PersistKeys.get(classInstance) || [],
         restoredData = {} as Partial<T>;
 
-    for (const key of keys || []) {
+    for (const { key, get, set } of list) {
         const itemKey = `${storeKey}-${key as string}`;
 
-        const value = await get(itemKey);
+        const value = await load(itemKey);
 
-        const patchedValue = patcher?.[key]?.get?.(value) ?? value;
+        const patchedValue = get?.(value) ?? value;
 
         if (patchedValue != null) {
             Reflect.set(classInstance, key, patchedValue);
@@ -103,9 +105,9 @@ export async function onRestore<T extends object>(
         reaction(
             () => classInstance[key],
             value => {
-                const patchedValue = patcher?.[key]?.set?.(value);
+                const patchedValue = set?.(value);
 
-                return set(itemKey, patchedValue ?? toJS(value));
+                return save(itemKey, patchedValue ?? toJS(value));
             }
         );
     }
@@ -114,4 +116,17 @@ export async function onRestore<T extends object>(
     console.group(`Restored ${storeKey}`);
     console.table(restoredData);
     console.groupEnd();
+}
+
+export async function destroy<T extends object>(
+    classInstance: T,
+    storeKey: string
+) {
+    const list = PersistKeys.get(classInstance) || [];
+
+    for (const { key } of list) {
+        const itemKey = `${storeKey}-${key as string}`;
+
+        await del(itemKey);
+    }
 }
