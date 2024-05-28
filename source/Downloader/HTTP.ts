@@ -1,19 +1,15 @@
 import { HTTPClient, type DownloadOptions } from 'koajax';
-import {
-    FileSystemFileHandle,
-    showSaveFilePicker
-} from 'native-file-system-adapter';
+import type { FileSystemFileHandle } from 'native-file-system-adapter';
 
 import { restore } from '../utility';
 import { DownloadTask } from './Task';
 
 export class HTTPDownloadTask extends DownloadTask {
-    client = new HTTPClient({ responseType: 'arraybuffer' });
+    client: DownloadTask['client'] = new HTTPClient({
+        responseType: 'arraybuffer'
+    });
 
-    constructor(
-        public name: string,
-        public path: string
-    ) {
+    constructor(path: string, name?: string) {
         super(name, path);
 
         this.id = `http-download-task-${name}`;
@@ -23,13 +19,12 @@ export class HTTPDownloadTask extends DownloadTask {
 
     async *loadStream(options?: DownloadOptions) {
         const { path } = this;
-        const suggestedName = new URL(path).pathname
-            .split('/')
-            .filter(Boolean)
-            .at(-1);
+        const suggestedName = DownloadTask.nameOf(path);
 
         try {
-            this.fsHandle ||= await showSaveFilePicker({ suggestedName });
+            this.fsHandle ||= await (
+                await import('native-file-system-adapter')
+            ).showSaveFilePicker({ suggestedName });
         } catch {
             return;
         }

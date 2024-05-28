@@ -1,15 +1,30 @@
-import type { DownloadOptions, TransferProgress } from 'koajax';
+import type {
+    Context,
+    DownloadOptions,
+    HTTPClient,
+    TransferProgress
+} from 'koajax';
 import { computed, observable, reaction } from 'mobx';
 import type { FileSystemHandle } from 'native-file-system-adapter';
-import { ReadableStream } from 'web-streams-polyfill';
+import type { ReadableStream } from 'web-streams-polyfill';
 import { ByteSize } from 'web-utility';
 
 import { destroy, persist } from '../utility';
 
 export abstract class DownloadTask implements Partial<TransferProgress> {
+    abstract client: Pick<HTTPClient<Context>, 'download'>;
+
     @persist()
     @observable
     accessor id = '';
+
+    @persist()
+    @observable
+    accessor name = '';
+
+    @persist()
+    @observable
+    accessor path = '';
 
     @persist()
     @observable.ref
@@ -46,10 +61,16 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
         return new ByteSize(this.loaded);
     }
 
-    constructor(
-        public name: string,
-        public path: string
-    ) {}
+    static nameOf(URI: string) {
+        return decodeURI(
+            new URL(URI).pathname.split('/').filter(Boolean).at(-1)
+        );
+    }
+
+    constructor(path: string, name = DownloadTask.nameOf(path)) {
+        this.path = path;
+        this.name = name;
+    }
 
     toJSON() {
         const { id, name, path, fsHandle, total, loaded, percent, options } =
@@ -73,22 +94,24 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
         options?: DownloadOptions
     ): AsyncGenerator<Partial<TransferProgress>>;
 
-    async pause() {
-        this.executing = false;
-    }
-
     async start(options = this.options) {
         this.options = options;
 
-        const [innerStream, outerStream] = ReadableStream.from<
-            Partial<TransferProgress>
-        >(this.loadStream(options)).tee();
+        const [innerStream, outerStream] = (
+            await import('web-streams-polyfill')
+        ).ReadableStream.from<Partial<TransferProgress>>(
+            this.loadStream(options)
+        ).tee();
 
         (async () => {
             for await (const chunk of innerStream) console.table(chunk);
         })();
 
         return (this.stream = outerStream);
+    }
+
+    async pause() {
+        this.executing = false;
     }
 
     async destroy() {

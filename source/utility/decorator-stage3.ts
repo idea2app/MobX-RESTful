@@ -1,4 +1,3 @@
-import { del, get as load, set as save } from 'idb-keyval';
 import { reaction, toJS } from 'mobx';
 import { TypeKeys, isEmpty } from 'web-utility';
 
@@ -86,7 +85,8 @@ export async function restore<T extends object>(
     classInstance: T,
     storeKey: string
 ) {
-    const list = PersistKeys.get(classInstance) || [],
+    const { get: load, set: save } = await import('idb-keyval'),
+        list = PersistKeys.get(classInstance) || [],
         restoredData = {} as Partial<T>;
 
     for (const { key, get, set } of list) {
@@ -122,7 +122,8 @@ export async function destroy<T extends object>(
     classInstance: T,
     storeKey: string
 ) {
-    const list = PersistKeys.get(classInstance) || [];
+    const { del } = await import('idb-keyval'),
+        list = PersistKeys.get(classInstance) || [];
 
     for (const { key } of list) {
         const itemKey = `${storeKey}-${key as string}`;

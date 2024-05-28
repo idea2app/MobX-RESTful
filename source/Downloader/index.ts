@@ -14,7 +14,7 @@ export class Downloader {
         https: HTTPDownloadTask
     };
 
-    static createTask(name: string, path: string) {
+    static createTask(path: string, name?: string) {
         const [protocol] = path.split(':');
         const ProtocolTask = Downloader.protocolMap[protocol];
 
@@ -22,7 +22,7 @@ export class Downloader {
             throw new URIError(
                 `Protocol "${protocol} has not been registered"`
             );
-        return new ProtocolTask(name, path);
+        return new ProtocolTask(path, name);
     }
 
     constructor() {
@@ -32,7 +32,7 @@ export class Downloader {
     @persist({
         set: tasks => tasks.map(({ name, path }) => ({ name, path })),
         get: list =>
-            list?.map(({ name, path }) => Downloader.createTask(name, path))
+            list?.map(({ name, path }) => Downloader.createTask(path, name))
     })
     @observable
     accessor tasks: DownloadTask[] = [];
@@ -47,9 +47,9 @@ export class Downloader {
         return this.tasks.filter(({ executing }) => executing).length;
     }
 
-    createTask(name: string, path: string) {
+    createTask(path: string, name?: string) {
         const { tasks } = this,
-            task = Downloader.createTask(name, path);
+            task = Downloader.createTask(path, name);
 
         if (!tasks.find(task => task.path === path))
             this.tasks = [...tasks, task];

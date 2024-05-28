@@ -204,6 +204,13 @@ export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
 export default new MultipleRepository();
 ```
 
+### File Downloader
+
+Here is an example:
+
+-   [Downloader component](https://github.com/idea2app/React-MobX-Bootstrap-ts/blob/master/src/component/Downloader.tsx)
+-   [Downloader view](https://github.com/idea2app/React-MobX-Bootstrap-ts/blob/master/src/page/Downloader.tsx)
+
 ## Wrapper
 
 1. [Strapi v4](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Strapi)
