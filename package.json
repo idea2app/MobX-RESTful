@@ -1,6 +1,6 @@
 {
     "name": "mobx-restful",
-    "version": "1.0.0-rc.4",
+    "version": "1.0.0-rc.5",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "MobX SDK for RESTful API",

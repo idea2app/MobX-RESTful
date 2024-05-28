@@ -10,9 +10,9 @@ export class HTTPDownloadTask extends DownloadTask {
     });
 
     constructor(path: string, name?: string) {
-        super(name, path);
+        super(path, name);
 
-        this.id = `http-download-task-${name}`;
+        this.id = `http-download-task-${this.name}`;
 
         restore(this, this.id);
     }
