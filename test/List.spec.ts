@@ -129,6 +129,7 @@ describe('List model', () => {
         class MultipleRepositoryModel extends Stream<Repository>(
             RepositoryModel
         ) {
+            declare baseURI: string;
             client = client;
 
             async *getOrgRepos() {

@@ -21,13 +21,10 @@ export class HTTPDownloadTask extends DownloadTask {
         const { path } = this;
         const suggestedName = DownloadTask.nameOf(path);
 
-        try {
-            this.fsHandle ||= await (
-                await import('native-file-system-adapter')
-            ).showSaveFilePicker({ suggestedName });
-        } catch {
-            return;
-        }
+        this.fsHandle ||= await (
+            await import('native-file-system-adapter')
+        ).showSaveFilePicker({ suggestedName });
+
         const writer = await (
                 this.fsHandle as FileSystemFileHandle
             ).createWritable({

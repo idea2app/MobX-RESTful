@@ -4,7 +4,7 @@ import type {
     HTTPClient,
     TransferProgress
 } from 'koajax';
-import { computed, observable, reaction } from 'mobx';
+import { computed, observable } from 'mobx';
 import type { FileSystemHandle } from 'native-file-system-adapter';
 import type { ReadableStream } from 'web-streams-polyfill';
 import { ByteSize } from 'web-utility';
@@ -97,6 +97,8 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
     async start(options = this.options) {
         this.options = options;
 
+        const started = Promise.withResolvers<void>();
+
         const [innerStream, outerStream] = (
             await import('web-streams-polyfill')
         ).ReadableStream.from<Partial<TransferProgress>>(
@@ -104,8 +106,17 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
         ).tee();
 
         (async () => {
-            for await (const chunk of innerStream) console.table(chunk);
+            try {
+                for await (const chunk of innerStream) {
+                    started.resolve();
+                    console.table(chunk);
+                }
+            } catch (error) {
+                started.reject(error);
+            }
         })();
+
+        await started.promise;
 
         return (this.stream = outerStream);
     }
@@ -118,12 +129,5 @@ export abstract class DownloadTask implements Partial<TransferProgress> {
         await this.pause();
 
         return destroy(this, this.id);
-    }
-
-    onFinished(callback: (task: DownloadTask) => any) {
-        return reaction(
-            () => this.percent === 100,
-            () => callback(this)
-        );
     }
 }

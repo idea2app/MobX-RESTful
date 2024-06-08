@@ -48,11 +48,14 @@ export class Downloader {
     }
 
     createTask(path: string, name?: string) {
-        const { tasks } = this,
-            task = Downloader.createTask(path, name);
+        const { tasks } = this;
+        const sameTask = tasks.find(task => task.path === path);
 
-        if (!tasks.find(task => task.path === path))
-            this.tasks = [...tasks, task];
+        if (sameTask) return sameTask;
+
+        const task = Downloader.createTask(path, name);
+
+        this.tasks = [...tasks, task];
 
         return task;
     }
