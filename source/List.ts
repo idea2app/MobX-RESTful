@@ -71,9 +71,7 @@ export abstract class ListModel<
 
     @computed
     get noMore() {
-        const { totalCount, allItems } = this;
-
-        return allItems.length >= totalCount;
+        return this.pageIndex * this.pageSize >= this.totalCount;
     }
 
     @observable
@@ -135,7 +133,7 @@ export abstract class ListModel<
      * @protected
      */
     async loadNewPage(pageIndex: number, pageSize: number, filter: F) {
-        const { pageData, totalCount = Infinity } = await this.loadPage(
+        const { pageData, totalCount } = await this.loadPage(
             pageIndex,
             pageSize,
             filter
@@ -146,7 +144,12 @@ export abstract class ListModel<
         list[pageIndex - 1] = pageData;
         this.pageList = list;
 
-        this.totalCount ||= totalCount;
+        this.totalCount =
+            totalCount != null
+                ? isNaN(totalCount) || totalCount < 0
+                    ? Infinity
+                    : totalCount
+                : Infinity;
 
         return { pageData, totalCount };
     }
@@ -318,8 +321,6 @@ export function Stream<
     M extends AbstractClass<ListModel<D, F>> = AbstractClass<ListModel<D, F>>
 >(Super: M) {
     abstract class StreamListMixin extends Super {
-        baseURI = '';
-
         stream?: AsyncGenerator<D, void, any>;
         abstract openStream(filter: F): AsyncGenerator<D, void, any>;
 

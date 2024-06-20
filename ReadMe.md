@@ -157,6 +157,7 @@ import { Repository, RepositoryModel } from './Repository';
 export type User = components['schemas']['public-user'];
 
 export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
+    declare baseURI: string;
     client = client;
 
     async *getOrgRepos() {
@@ -214,7 +215,8 @@ Here is an example:
 ## Wrapper
 
 1. [Strapi v4](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Strapi)
-2. [Lark/FeiShu](https://github.com/idea2app/MobX-Lark)
+2. [GitHub](https://github.com/idea2app/MobX-GitHub)
+3. [Lark/FeiShu](https://github.com/idea2app/MobX-Lark)
 
 ## Component
 
