@@ -21,8 +21,11 @@
 ### Installation
 
 ```shell
-npm i mobx-restful mobx-strapi koajax
+npm i mobx-strapi koajax
 ```
+
+> Some **Node.js** tips about the upstream `mobx-restful` you should know:
+> https://github.com/idea2app/MobX-RESTful?tab=readme-ov-file#usage
 
 ### `tsconfig.json`
 
