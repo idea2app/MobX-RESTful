@@ -1,6 +1,6 @@
 {
     "name": "mobx-strapi",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "MobX SDK for Strapi headless CMS",
@@ -20,9 +20,9 @@
     "types": "dist/index.d.ts",
     "main": "dist/index.js",
     "dependencies": {
-        "@swc/helpers": "^0.5.11",
-        "mobx-restful": "^1.0.0-rc.1",
-        "qs": "^6.12.1",
+        "@swc/helpers": "^0.5.13",
+        "mobx-restful": "^1.0.0",
+        "qs": "^6.13.0",
         "regenerator-runtime": "^0.14.1",
         "web-utility": "^4.4.0"
     },
@@ -35,9 +35,9 @@
         "@parcel/transformer-typescript-tsc": "~2.12.0",
         "@parcel/transformer-typescript-types": "~2.12.0",
         "@types/qs": "^6.9.15",
-        "mobx": "^6.12.3",
+        "mobx": "^6.13.1",
         "parcel": "~2.12.0",
-        "typescript": "~5.4.5"
+        "typescript": "~5.5.4"
     },
     "browserslist": "> 0.5%, last 2 versions, not dead, IE 11",
     "targets": {

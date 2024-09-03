@@ -1,14 +1,14 @@
 # MobX RESTful
 
-Common [MobX][1] **abstract base Class & Decorator** utilities for [RESTful API][2].
+Common [MobX][1] **abstract base Class & [Decorator][2]** utilities for [RESTful API][3].
 
 Just define your **Data models** & **Client HTTP methods**, then leave rest of things to MobX!
 
 [![MobX compatibility](https://img.shields.io/badge/Compatible-1?logo=mobx&label=MobX%206%2F7)][1]
-[![NPM Dependency](https://img.shields.io/librariesio/github/idea2app/MobX-RESTful.svg)][3]
-[![CI & CD](https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml/badge.svg)][4]
+[![NPM Dependency](https://img.shields.io/librariesio/github/idea2app/MobX-RESTful.svg)][4]
+[![CI & CD](https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml/badge.svg)][5]
 
-[![NPM](https://nodei.co/npm/mobx-restful.png?downloads=true&downloadRank=true&stars=true)][5]
+[![NPM](https://nodei.co/npm/mobx-restful.png?downloads=true&downloadRank=true&stars=true)][6]
 
 ## Versions
 
@@ -18,6 +18,27 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 | `<0.7.0`  | ❌deprecated |   stage-2    | `>=4 <6.11` |
 
 ## Usage
+
+### `package.json`
+
+```json
+{
+    "dependencies": {
+        "koajax": "^3.0.0",
+        "mobx": "^6.13.1",
+        "mobx-restful": "^1.0.1"
+    },
+    "resolutions": {
+        "native-file-system-adapter": "npm:@tech_query/native-file-system-adapter@^3.0.1"
+    }
+}
+```
+
+> This `resolutions` configuration is used for **Node.js**, such Back-end API or Server-side Rendering.
+>
+> You should install your project with [Yarn][7] or [PNPM][8] to support this feature.
+>
+> It can be removed after [`require('esm')` shipped formally][9].
 
 ### `tsconfig.json`
 
@@ -83,7 +104,7 @@ export default new RepositoryModel();
 
 #### `page/Repository.tsx`
 
-Use [WebCell][6] as an Example
+Use [WebCell][10] as an Example
 
 ```tsx
 import { component, observer } from 'web-cell';
@@ -230,12 +251,16 @@ Here is an example:
 
 ## Limitation
 
--   [ ] [`abstract` hint of Mixin is missing][7]
+-   [ ] [`abstract` hint of Mixin is missing][11]
 
 [1]: https://mobx.js.org/
-[2]: https://en.wikipedia.org/wiki/Representational_state_transfer
-[3]: https://libraries.io/npm/mobx-restful
-[4]: https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml
-[5]: https://nodei.co/npm/mobx-restful/
-[6]: https://github.com/EasyWebApp/WebCell
-[7]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720
+[2]: https://github.com/tc39/proposal-decorators
+[3]: https://en.wikipedia.org/wiki/Representational_state_transfer
+[4]: https://libraries.io/npm/mobx-restful
+[5]: https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml
+[6]: https://nodei.co/npm/mobx-restful/
+[7]: https://yarnpkg.com/
+[8]: https://pnpm.io/
+[9]: https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/
+[10]: https://github.com/EasyWebApp/WebCell
+[11]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720

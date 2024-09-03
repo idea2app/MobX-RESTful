@@ -68,7 +68,7 @@ export abstract class StrapiListModel<
         const words = this.keywords.split(/\s+/);
 
         type OrFilter = Record<
-            Exclude<TypeKeys<D, string>, StrapiListModel<D, F>['indexKey']>,
+            Exclude<TypeKeys<D, string>, this['indexKey']>,
             { $containsi: string }
         >;
         const $or = this.searchKeys
