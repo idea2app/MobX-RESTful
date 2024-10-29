@@ -25,20 +25,11 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 {
     "dependencies": {
         "koajax": "^3.0.0",
-        "mobx": "^6.13.1",
-        "mobx-restful": "^1.0.1"
-    },
-    "resolutions": {
-        "native-file-system-adapter": "npm:@tech_query/native-file-system-adapter@^3.0.1"
+        "mobx": "^6.13.5",
+        "mobx-restful": "^2.0.0"
     }
 }
 ```
-
-> This `resolutions` configuration is used for **Node.js**, such Back-end API or Server-side Rendering.
->
-> You should install your project with [Yarn][7] or [PNPM][8] to support this feature.
->
-> It can be removed after [`require('esm')` shipped formally][9].
 
 ### `tsconfig.json`
 
@@ -228,10 +219,7 @@ export default new MultipleRepository();
 
 ### File Downloader
 
-Here is an example:
-
--   [Downloader component](https://github.com/idea2app/React-MobX-Bootstrap-ts/blob/master/src/component/Downloader.tsx)
--   [Downloader view](https://github.com/idea2app/React-MobX-Bootstrap-ts/blob/master/src/page/Downloader.tsx)
+This module has been moved to [MobX-downloader][12] since MobX-RESTful v2.
 
 ## Wrapper
 
@@ -264,3 +252,4 @@ Here is an example:
 [9]: https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/
 [10]: https://github.com/EasyWebApp/WebCell
 [11]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720
+[12]: https://github.com/idea2app/MobX-downloader

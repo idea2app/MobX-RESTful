@@ -12,8 +12,8 @@ importers:
         specifier: ^0.5.13
         version: 0.5.13
       mobx-restful:
-        specifier: ^1.0.0
-        version: 1.0.0(mobx@6.13.1)(typescript@5.5.4)
+        specifier: '>=1 <3'
+        version: 1.0.1(mobx@6.13.5)(typescript@5.6.3)
       qs:
         specifier: ^6.13.0
         version: 6.13.0
@@ -21,33 +21,33 @@ importers:
         specifier: ^0.14.1
         version: 0.14.1
       web-utility:
-        specifier: ^4.4.0
-        version: 4.4.0(typescript@5.5.4)
+        specifier: ^4.4.1
+        version: 4.4.1(typescript@5.6.3)
     devDependencies:
       '@parcel/config-default':
         specifier: ~2.12.0
-        version: 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)(typescript@5.5.4)
+        version: 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)(typescript@5.6.3)
       '@parcel/packager-ts':
         specifier: ~2.12.0
         version: 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/transformer-typescript-tsc':
         specifier: ~2.12.0
-        version: 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.5.4)
+        version: 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.6.3)
       '@parcel/transformer-typescript-types':
         specifier: ~2.12.0
-        version: 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.5.4)
+        version: 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.6.3)
       '@types/qs':
-        specifier: ^6.9.15
-        version: 6.9.15
+        specifier: ^6.9.16
+        version: 6.9.16
       mobx:
-        specifier: ^6.13.1
-        version: 6.13.1
+        specifier: ^6.13.5
+        version: 6.13.5
       parcel:
         specifier: ~2.12.0
-        version: 2.12.0(@swc/helpers@0.5.13)(typescript@5.5.4)
+        version: 2.12.0(@swc/helpers@0.5.13)(typescript@5.6.3)
       typescript:
-        specifier: ~5.5.4
-        version: 5.5.4
+        specifier: ~5.6.3
+        version: 5.6.3
 
 packages:
 
@@ -535,8 +535,8 @@ packages:
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
 
-  '@types/qs@6.9.15':
-    resolution: {integrity: sha512-uXHQKES6DQKKCLh441Xv/dwxOq1TVS3JPUMlEqoEglvlhR6Mxnlew/Xq/LRVHpLyk7iK3zODe1qYHIMltO7XGg==}
+  '@types/qs@6.9.16':
+    resolution: {integrity: sha512-7i+zxXdPD0T4cKDuxCUXJ4wHcsJLwENa6Z3dCu8cfCK743OGy5Nu1RmAGqDPsoTDINVEcdXKRvR/zre+P2Ku1A==}
 
   abortcontroller-polyfill@1.7.5:
     resolution: {integrity: sha512-JMJ5soJWP18htbbxJjG7bG6yuI6pRhgJ0scHHTfkUjf6wjP912xZWvM+A4sJK3gqd9E8fcPbDnOefbA9Th/FIQ==}
@@ -671,8 +671,8 @@ packages:
   electron-to-chromium@1.4.774:
     resolution: {integrity: sha512-132O1XCd7zcTkzS3FgkAzKmnBuNJjK8WjcTtNuoylj7MYbqw5eXehjQ5OK91g0zm7OTKIPeaAG4CPoRfD9M1Mg==}
 
-  element-internals-polyfill@1.3.11:
-    resolution: {integrity: sha512-SQLQNVY4wMdpnP/F/HtalJbpEenQd46Avtjm5hvUdeTs3QU0zHFNX5/AmtQIPPcfzePb0ipCkQGY4GwYJIhLJA==}
+  element-internals-polyfill@1.3.12:
+    resolution: {integrity: sha512-KW1k+cMGwXlx3X9nqhgmuElAfR/c/ccFt0pG4KpwK++Mx9Y+mPExxJW+jgQnqux/NQrJejgOxxg4Naf3f6y67Q==}
 
   entities@2.2.0:
     resolution: {integrity: sha512-p92if5Nz619I0w+akJrLZH0MX0Pb5DX39XOwQTtXSdQQOaYH03S1uIQp4mhOZtAXrxq4ViO67YTiLBo2638o9A==}
@@ -812,6 +812,7 @@ packages:
 
   iterable-observer@1.0.1:
     resolution: {integrity: sha512-qy2Kuf1drKVmWgWaRsqdM8EHanAW4xS37j1nFdVP07qiN0Mj4D5sl9dYA8mZJdX/d3De4bhZoFuVWXvcOM1usg==}
+    deprecated: Don't use versions with old API & bugs
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -830,6 +831,7 @@ packages:
 
   koajax@1.1.2:
     resolution: {integrity: sha512-TGWJhGpojfSYdqGIKK8CWwMhUY1LYDyvodt6LywHVYEH6qq38/3DgW+FKTCV88O59G0J4W2XFbBTF8nvZ/J/nw==}
+    deprecated: Don't use versions with old API & bugs
     peerDependencies:
       jsdom: '>=21'
 
@@ -905,13 +907,13 @@ packages:
     resolution: {integrity: sha512-DMy+ERcEW2q8Z2Po+WNXuw3c5YaUSFjAO5GsJqfEl7UjvtIuFKO6ZrKvcItdy98dwFI2N1tg3zNIdKaQT+aNdA==}
     engines: {node: '>=8.6'}
 
-  mobx-restful@1.0.0:
-    resolution: {integrity: sha512-b+3eAVusZdTvrK/ET8SU9Ih8NUA3PrBmtQDRIoGAEm5R8WqmcBTQyuM61SX7shsWTbTtL0T1Qe7m7x4fL6llLA==}
+  mobx-restful@1.0.1:
+    resolution: {integrity: sha512-jxX2anGxUc/E71pDAZn3SWjJhelRjNCbYHggccmSzawAEYI9AiKc0gwmPmifR0zwajVi3RpBzfqF4mQgt0TpCQ==}
     peerDependencies:
       mobx: '>=6.11'
 
-  mobx@6.13.1:
-    resolution: {integrity: sha512-ekLRxgjWJr8hVxj9ZKuClPwM/iHckx3euIJ3Np7zLVNtqJvfbbq7l370W/98C8EabdQ1pB5Jd3BbDWxJPNnaOg==}
+  mobx@6.13.5:
+    resolution: {integrity: sha512-/HTWzW2s8J1Gqt+WmUj5Y0mddZk+LInejADc79NJadrWla3rHzmRHki/mnEUH1AvOmbNTZ1BRbKxr8DSgfdjMA==}
 
   msgpackr-extract@3.0.2:
     resolution: {integrity: sha512-SdzXp4kD/Qf8agZ9+iTu6eql0m3kWm1A2y1hkpTeVNENutaB0BwHlSvAIaMxwntmRUAUjon2V4L8Z/njd0Ct8A==}
@@ -1077,8 +1079,8 @@ packages:
     resolution: {integrity: sha512-Ne+eE4r0/iWnpAxD852z3A+N0Bt5RN//NjJwRd2VFHEmrywxf5vsZlh4R6lixl6B+wz/8d+maTSAkN1FIkI3LQ==}
     engines: {node: '>=10'}
 
-  typescript@5.5.4:
-    resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
+  typescript@5.6.3:
+    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -1103,8 +1105,8 @@ packages:
     resolution: {integrity: sha512-0zJXHRAYEjM2tUfZ2DiSOHAa2aw1tisnnhU3ufD57R8iefL+DcdJyRBRyJpG+NUimDgbTI/lH+gAE1PAvV3Cgw==}
     engines: {node: '>= 8'}
 
-  web-utility@4.4.0:
-    resolution: {integrity: sha512-Bw0RcX5jBNuw+FQ2NKkkegNK07czjXoUtDNpRO+2ueNNv3FL8GsTTU27eM+17bzFPpYqukAdkCLJf5ZAYiDZtg==}
+  web-utility@4.4.1:
+    resolution: {integrity: sha512-MGmMMjSdsKWHDBpiEHa4Rve6gzFz/aB7RHYyJEKk7cwh+M5/dEjIG2kj/299PXLvHOAMxoywTBhY/d0k2lTgUA==}
     peerDependencies:
       typescript: '>=4.1'
 
@@ -1201,14 +1203,14 @@ snapshots:
     transitivePeerDependencies:
       - '@parcel/core'
 
-  '@parcel/config-default@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)(typescript@5.5.4)':
+  '@parcel/config-default@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)(typescript@5.6.3)':
     dependencies:
       '@parcel/bundler-default': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/compressor-raw': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/core': 2.12.0(@swc/helpers@0.5.13)
       '@parcel/namer-default': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/optimizer-css': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
-      '@parcel/optimizer-htmlnano': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.5.4)
+      '@parcel/optimizer-htmlnano': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.6.3)
       '@parcel/optimizer-image': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/optimizer-svgo': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/optimizer-swc': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)
@@ -1339,10 +1341,10 @@ snapshots:
     transitivePeerDependencies:
       - '@parcel/core'
 
-  '@parcel/optimizer-htmlnano@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.5.4)':
+  '@parcel/optimizer-htmlnano@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.6.3)':
     dependencies:
       '@parcel/plugin': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
-      htmlnano: 2.1.1(svgo@2.8.0)(typescript@5.5.4)
+      htmlnano: 2.1.1(svgo@2.8.0)(typescript@5.6.3)
       nullthrows: 1.1.1
       posthtml: 0.16.6
       svgo: 2.8.0
@@ -1668,31 +1670,31 @@ snapshots:
     transitivePeerDependencies:
       - '@parcel/core'
 
-  '@parcel/transformer-typescript-tsc@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.5.4)':
+  '@parcel/transformer-typescript-tsc@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.6.3)':
     dependencies:
       '@parcel/plugin': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/source-map': 2.1.1
-      '@parcel/ts-utils': 2.12.0(typescript@5.5.4)
-      typescript: 5.5.4
+      '@parcel/ts-utils': 2.12.0(typescript@5.6.3)
+      typescript: 5.6.3
     transitivePeerDependencies:
       - '@parcel/core'
 
-  '@parcel/transformer-typescript-types@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.5.4)':
+  '@parcel/transformer-typescript-types@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(typescript@5.6.3)':
     dependencies:
       '@parcel/diagnostic': 2.12.0
       '@parcel/plugin': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))
       '@parcel/source-map': 2.1.1
-      '@parcel/ts-utils': 2.12.0(typescript@5.5.4)
+      '@parcel/ts-utils': 2.12.0(typescript@5.6.3)
       '@parcel/utils': 2.12.0
       nullthrows: 1.1.1
-      typescript: 5.5.4
+      typescript: 5.6.3
     transitivePeerDependencies:
       - '@parcel/core'
 
-  '@parcel/ts-utils@2.12.0(typescript@5.5.4)':
+  '@parcel/ts-utils@2.12.0(typescript@5.6.3)':
     dependencies:
       nullthrows: 1.1.1
-      typescript: 5.5.4
+      typescript: 5.6.3
 
   '@parcel/types@2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)':
     dependencies:
@@ -1845,7 +1847,7 @@ snapshots:
 
   '@trysound/sax@0.2.0': {}
 
-  '@types/qs@6.9.15': {}
+  '@types/qs@6.9.16': {}
 
   abortcontroller-polyfill@1.7.5: {}
 
@@ -1917,14 +1919,14 @@ snapshots:
 
   commander@7.2.0: {}
 
-  cosmiconfig@9.0.0(typescript@5.5.4):
+  cosmiconfig@9.0.0(typescript@5.6.3):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.0
       js-yaml: 4.1.0
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 5.5.4
+      typescript: 5.6.3
 
   css-select@4.3.0:
     dependencies:
@@ -1979,7 +1981,7 @@ snapshots:
 
   electron-to-chromium@1.4.774: {}
 
-  element-internals-polyfill@1.3.11: {}
+  element-internals-polyfill@1.3.12: {}
 
   entities@2.2.0: {}
 
@@ -2047,9 +2049,9 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  htmlnano@2.1.1(svgo@2.8.0)(typescript@5.5.4):
+  htmlnano@2.1.1(svgo@2.8.0)(typescript@5.6.3):
     dependencies:
-      cosmiconfig: 9.0.0(typescript@5.5.4)
+      cosmiconfig: 9.0.0(typescript@5.6.3)
       posthtml: 0.16.6
       timsort: 0.3.0
     optionalDependencies:
@@ -2097,12 +2099,12 @@ snapshots:
 
   json5@2.2.3: {}
 
-  koajax@1.1.2(typescript@5.5.4):
+  koajax@1.1.2(typescript@5.6.3):
     dependencies:
       '@swc/helpers': 0.5.13
       iterable-observer: 1.0.1
       regenerator-runtime: 0.14.1
-      web-utility: 4.4.0(typescript@5.5.4)
+      web-utility: 4.4.1(typescript@5.6.3)
     transitivePeerDependencies:
       - typescript
 
@@ -2171,21 +2173,21 @@ snapshots:
       braces: 3.0.2
       picomatch: 2.3.1
 
-  mobx-restful@1.0.0(mobx@6.13.1)(typescript@5.5.4):
+  mobx-restful@1.0.1(mobx@6.13.5)(typescript@5.6.3):
     dependencies:
       '@swc/helpers': 0.5.13
       idb-keyval: 6.2.1
-      koajax: 1.1.2(typescript@5.5.4)
-      mobx: 6.13.1
+      koajax: 1.1.2(typescript@5.6.3)
+      mobx: 6.13.5
       native-file-system-adapter: 3.0.1
       regenerator-runtime: 0.14.1
       web-streams-polyfill: 4.0.0
-      web-utility: 4.4.0(typescript@5.5.4)
+      web-utility: 4.4.1(typescript@5.6.3)
     transitivePeerDependencies:
       - jsdom
       - typescript
 
-  mobx@6.13.1: {}
+  mobx@6.13.5: {}
 
   msgpackr-extract@3.0.2:
     dependencies:
@@ -2233,9 +2235,9 @@ snapshots:
 
   ordered-binary@1.5.1: {}
 
-  parcel@2.12.0(@swc/helpers@0.5.13)(typescript@5.5.4):
+  parcel@2.12.0(@swc/helpers@0.5.13)(typescript@5.6.3):
     dependencies:
-      '@parcel/config-default': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)(typescript@5.5.4)
+      '@parcel/config-default': 2.12.0(@parcel/core@2.12.0(@swc/helpers@0.5.13))(@swc/helpers@0.5.13)(typescript@5.6.3)
       '@parcel/core': 2.12.0(@swc/helpers@0.5.13)
       '@parcel/diagnostic': 2.12.0
       '@parcel/events': 2.12.0
@@ -2364,7 +2366,7 @@ snapshots:
 
   type-fest@0.20.2: {}
 
-  typescript@5.5.4: {}
+  typescript@5.6.3: {}
 
   update-browserslist-db@1.0.16(browserslist@4.23.0):
     dependencies:
@@ -2381,9 +2383,9 @@ snapshots:
 
   web-streams-polyfill@4.0.0: {}
 
-  web-utility@4.4.0(typescript@5.5.4):
+  web-utility@4.4.1(typescript@5.6.3):
     dependencies:
       '@swc/helpers': 0.5.13
-      element-internals-polyfill: 1.3.11
+      element-internals-polyfill: 1.3.12
       regenerator-runtime: 0.14.1
-      typescript: 5.5.4
+      typescript: 5.6.3
