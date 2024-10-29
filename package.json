@@ -1,9 +1,9 @@
 {
     "name": "mobx-restful",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
-    "description": "MobX SDK for RESTful API",
+    "description": "Common MobX abstract base Class & Decorator utilities for RESTful API",
     "keywords": [
         "restful",
         "api",
@@ -29,11 +29,9 @@
     "dependencies": {
         "@swc/helpers": "^0.5.13",
         "idb-keyval": "^6.2.1",
-        "koajax": ">=1 <4",
-        "native-file-system-adapter": "^3.0.1",
+        "koajax": "^3.0.3",
         "regenerator-runtime": "^0.14.1",
-        "web-streams-polyfill": "^4.0.0",
-        "web-utility": "^4.4.0"
+        "web-utility": "^4.4.1"
     },
     "peerDependencies": {
         "mobx": ">=6.11"
@@ -44,21 +42,21 @@
         "@parcel/packager-ts": "~2.12.0",
         "@parcel/transformer-typescript-tsc": "~2.12.0",
         "@parcel/transformer-typescript-types": "~2.12.0",
-        "@types/jest": "^29.5.12",
-        "@types/node": "^20.16.3",
+        "@types/jest": "^29.5.14",
+        "@types/node": "^20.17.2",
         "dotenv": "^16.4.5",
-        "husky": "^9.1.5",
+        "husky": "^9.1.6",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
         "lint-staged": "^15.2.10",
-        "mobx": "^6.13.1",
+        "mobx": "^6.13.5",
         "open-cli": "^8.0.0",
         "parcel": "~2.12.0",
         "prettier": "^3.3.3",
         "ts-jest": "^29.2.5",
-        "typedoc": "^0.26.6",
-        "typedoc-plugin-mdn-links": "^3.2.11",
-        "typescript": "~5.5.4"
+        "typedoc": "^0.26.10",
+        "typedoc-plugin-mdn-links": "^3.3.5",
+        "typescript": "~5.6.3"
     },
     "prettier": {
         "singleQuote": true,
