@@ -61,25 +61,95 @@ export function toggleNotification<T extends BaseModel>(
         };
 }
 
-interface PersistMeta<V = any, S = any> {
+export interface PersistMeta<V = any, S = any> {
     key: string;
-    set?: (value: V) => S;
-    get?: (value?: S) => V;
+    value?: V | S;
+    set?: (value: V) => S | Promise<S>;
+    get?: (value?: S) => V | Promise<V>;
+    expireIn?: number;
     disposer?: IReactionDisposer;
 }
-const PersistKeys = new WeakMap<any, PersistMeta[]>();
 
-export function persist<T, V, S>(patcher: Omit<PersistMeta<V, S>, 'key'> = {}) {
+/**
+ * @private
+ */
+export interface PersistBox<V = any, S = any> {
+    value: V | S;
+    expireAt?: number;
+}
+
+export class PersistNode<V = any, S = any> implements PersistMeta<V, S> {
+    key: string;
+    value?: V | S;
+    set?: (value: V) => S | Promise<S>;
+    get?: (value?: S) => V | Promise<V>;
+    expireIn?: number;
+    disposer?: IReactionDisposer;
+
+    constructor(meta: PersistMeta<V, S>) {
+        Object.assign(this, meta);
+    }
+
+    async save(storeKey: string, value?: V) {
+        if (value != null)
+            this.value = toJS((await this.set?.(value)) ?? value);
+
+        const { set } = await import('idb-keyval'),
+            data: PersistBox<V, S> = {
+                value: this.value,
+                expireAt: this.expireIn + Date.now()
+            };
+        return set(`${storeKey}-${this.key}`, data);
+    }
+
+    async load(storeKey: string) {
+        const { get, del } = await import('idb-keyval');
+
+        storeKey += `-${this.key}`;
+
+        const { value, expireAt } =
+            (await get<PersistBox<V, S>>(storeKey)) ?? {};
+
+        if (expireAt && expireAt < Date.now()) {
+            delete this.value;
+            return del(storeKey);
+        }
+        this.value = value;
+
+        return (value != null ? await this.get?.(value as S) : value) ?? value;
+    }
+
+    async destroy(storeKey: string) {
+        this.disposer?.();
+
+        const { del } = await import('idb-keyval');
+
+        return del(`${storeKey}-${this.key}`);
+    }
+}
+
+const PersistNodes = new WeakMap<any, PersistNode[]>();
+
+export type PersistFieldMeta<V = any, S = any> = Pick<
+    PersistMeta<V, S>,
+    'set' | 'get' | 'expireIn'
+>;
+
+export function persist<T, V, S>({
+    expireIn = Infinity,
+    ...meta
+}: PersistFieldMeta<V, S> = {}) {
     return (
         {}: ClassAccessorDecoratorTarget<T, V>,
         { name, addInitializer }: ClassAccessorDecoratorContext<T, V>
     ) => {
         addInitializer(function () {
-            const list = PersistKeys.get(this) || [];
+            const list = PersistNodes.get(this) || [];
 
-            list.push({ ...patcher, key: name.toString() });
-
-            PersistKeys.set(this, list);
+            list.push(
+                new PersistNode({ ...meta, key: name.toString(), expireIn })
+            );
+            PersistNodes.set(this, list);
         });
     };
 }
@@ -88,31 +158,21 @@ export async function restore<T extends object>(
     classInstance: T,
     storeKey: string
 ) {
-    const { get: load, set: save } = await import('idb-keyval'),
-        list = PersistKeys.get(classInstance) || [],
+    const list = PersistNodes.get(classInstance) || [],
         restoredData = {} as Partial<T>;
 
     for (const item of list) {
-        const { key, set, get } = item,
-            itemKey = `${storeKey}-${key as string}`;
+        const { key } = item,
+            value = await item.load(storeKey);
 
-        const value = await load(itemKey);
+        if (value != null) {
+            Reflect.set(classInstance, key, value);
 
-        const patchedValue = get?.(value) ?? value;
-
-        if (patchedValue != null) {
-            Reflect.set(classInstance, key, patchedValue);
-
-            restoredData[key] = patchedValue;
+            restoredData[key] = value;
         }
-
         item.disposer = reaction(
             () => classInstance[key],
-            value => {
-                const patchedValue = set?.(value);
-
-                return save(itemKey, patchedValue ?? toJS(value));
-            }
+            value => item.save(storeKey, value)
         );
     }
     if (isEmpty(restoredData)) return;
@@ -126,64 +186,57 @@ export async function destroy<T extends object>(
     classInstance: T,
     storeKey: string
 ) {
-    const { del } = await import('idb-keyval'),
-        list = PersistKeys.get(classInstance) || [];
+    const list = PersistNodes.get(classInstance) || [];
 
-    for (const { key, disposer } of list) {
-        const itemKey = `${storeKey}-${key as string}`;
-
-        disposer?.();
-
-        await del(itemKey);
-    }
+    for (const node of list) await node.destroy(storeKey);
 }
 
 export interface PersistModel {
     restored?: Promise<void>;
 }
 
+export interface PersistListMeta<T> extends Pick<PersistMeta, 'expireIn'> {
+    storeKey: string | ((instance: T) => string);
+}
+
 export function persistList<
     D extends DataObject,
     F extends Filter<D> = Filter<D>,
     T extends Constructor<ListModel<D, F>> = Constructor<ListModel<D, F>>
->(
-    { storeKey } = {} as {
-        storeKey: string | ((instance: T) => string);
-    }
-) {
+>({ storeKey, expireIn = Infinity } = {} as PersistListMeta<InstanceType<T>>) {
     return (Super: T, {}: ClassDecoratorContext) =>
         class PersistListModel extends Super {
+            declare client: RESTClient;
+            declare baseURI: string;
+
+            @persist({ expireIn })
+            @observable
+            accessor pageIndex = 0;
+
+            @persist({ expireIn })
+            @observable
+            accessor pageSize = 10;
+
+            @persist({ expireIn })
+            @observable
+            accessor filter = {} as F;
+
+            @persist({ expireIn })
+            @observable
+            accessor totalCount: number | undefined = undefined;
+
+            @persist({ expireIn })
+            @observable
+            accessor pageList: D[][] = [];
+
             restored =
                 globalThis.indexedDB &&
                 restore(
                     this,
                     typeof storeKey === 'function'
-                        ? storeKey(this as T & this)
+                        ? storeKey(this as InstanceType<T>)
                         : storeKey
                 );
-            declare client: RESTClient;
-            declare baseURI: string;
-
-            @persist()
-            @observable
-            accessor pageIndex = 0;
-
-            @persist()
-            @observable
-            accessor pageSize = 10;
-
-            @persist()
-            @observable
-            accessor filter = {} as F;
-
-            @persist()
-            @observable
-            accessor totalCount: number | undefined = undefined;
-
-            @persist()
-            @observable
-            accessor pageList: D[][] = [];
-
             declare loadPage: (
                 pageIndex: number,
                 pageSize: number,

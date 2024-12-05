@@ -1,6 +1,6 @@
 {
     "name": "mobx-restful",
-    "version": "2.1.0",
+    "version": "2.1.0-rc.1",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "Common MobX abstract base Class & Decorator utilities for RESTful API",
@@ -54,9 +54,9 @@
         "mobx": "^6.13.5",
         "open-cli": "^8.0.0",
         "parcel": "~2.13.2",
-        "prettier": "^3.4.1",
+        "prettier": "^3.4.2",
         "ts-jest": "^29.2.5",
-        "typedoc": "^0.27.2",
+        "typedoc": "^0.27.3",
         "typedoc-plugin-mdn-links": "^4.0.3",
         "typescript": "~5.7.2",
         "web-streams-polyfill": "^4.0.0"

@@ -1,6 +1,7 @@
 import 'core-js/stable/structured-clone';
 import 'fake-indexeddb/auto';
 
+import { Blob } from 'buffer';
 import { get } from 'idb-keyval';
 import { observable } from 'mobx';
 import { sleep } from 'web-utility';
@@ -10,49 +11,100 @@ import {
     destroy,
     ListModel,
     persist,
+    PersistBox,
     persistList,
     restore
 } from '../source';
 import { client } from './service';
 
 describe('Persist base', () => {
-    class SimpleModel extends BaseModel {
-        restored = restore(this, 'Test');
-
+    class TestModel extends BaseModel {
         @persist()
         @observable
         accessor name: string | undefined;
+
+        @persist({
+            set: text => new Blob([text]),
+            get: blob => blob.text()
+        })
+        @observable
+        accessor file = '';
+
+        @persist({ expireIn: 1000 })
+        @observable
+        accessor token = '';
+
+        restored = restore(this, 'Test');
     }
-    const simpleStore = new SimpleModel();
+    const testStore = new TestModel();
 
     it('should save a property to IndexedDB', async () => {
-        await simpleStore.restored;
+        await testStore.restored;
 
-        simpleStore.name = 'Test';
-        await sleep(1);
-        expect(await get('Test-name')).toBe('Test');
-
-        simpleStore.name = 'Example';
+        testStore.name = 'Test';
         await sleep();
-        expect(await get('Test-name')).toBe('Example');
+        expect(await get('Test-name')).toEqual({
+            expireAt: Infinity,
+            value: 'Test'
+        });
+        testStore.name = 'Example';
+        await sleep();
+        expect(await get('Test-name')).toEqual({
+            expireAt: Infinity,
+            value: 'Example'
+        });
     });
 
     it('should restore a property from IndexedDB', async () => {
-        const newSimpleStore = new SimpleModel();
+        const newTestStore = new TestModel();
 
-        expect(newSimpleStore.name).toBeUndefined();
+        expect(newTestStore.name).toBeUndefined();
 
-        await newSimpleStore.restored;
+        await newTestStore.restored;
 
-        expect(newSimpleStore.name).toBe('Example');
+        expect(newTestStore.name).toBe('Example');
+    });
+
+    it('should write/read a serialized property to/from IndexedDB', async () => {
+        testStore.file = 'Test';
+
+        await sleep();
+
+        const { value } = await get<PersistBox<string, Blob>>('Test-file');
+
+        expect(value).toBeInstanceOf(Blob);
+        expect(await (value as Blob).text()).toBe('Test');
+
+        const newTestStore = new TestModel();
+
+        await newTestStore.restored;
+
+        expect(newTestStore.file).toBe('Test');
+    });
+
+    it('should delete an expired property from IndexedDB', async () => {
+        testStore.token = 'xyz';
+
+        await sleep(1);
+
+        const { value } = await get<PersistBox>('Test-token');
+
+        expect(value).toBe('xyz');
+
+        const newTestStore = new TestModel();
+
+        await newTestStore.restored;
+
+        expect(newTestStore.token).toBe('');
+        expect(await get('Test-token')).toBeUndefined();
     });
 
     it('should destroy IndexedDB values & MobX reactions of Persist properties', async () => {
-        await destroy(simpleStore, 'Test');
+        await destroy(testStore, 'Test');
 
         expect(await get('Test-name')).toBeUndefined();
 
-        simpleStore.name = 'Test';
+        testStore.name = 'Test';
 
         expect(await get('Test-name')).toBeUndefined();
     });
@@ -85,7 +137,10 @@ describe('Persist list', () => {
 
         const pageList = await get<Test[]>('TestList-pageList');
 
-        expect(pageList).toEqual([pageData]);
+        expect(pageList).toEqual({
+            expireAt: Infinity,
+            value: [pageData]
+        });
         expect(testListStore.noMore).toBeTruthy();
     });
 
