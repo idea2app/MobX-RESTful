@@ -1,7 +1,9 @@
-import { reaction, toJS } from 'mobx';
-import { TypeKeys, isEmpty } from 'web-utility';
+import { IReactionDisposer, observable, reaction, toJS } from 'mobx';
+import { Constructor, TypeKeys, isEmpty } from 'web-utility';
 
 import { BaseModel } from '../Base';
+import { Filter, ListModel, PageData } from '../List';
+import { DataObject, RESTClient } from './type';
 
 export function toggle<T extends BaseModel>(
     property: TypeKeys<T, boolean | number>
@@ -63,6 +65,7 @@ interface PersistMeta<V = any, S = any> {
     key: string;
     set?: (value: V) => S;
     get?: (value?: S) => V;
+    disposer?: IReactionDisposer;
 }
 const PersistKeys = new WeakMap<any, PersistMeta[]>();
 
@@ -89,8 +92,9 @@ export async function restore<T extends object>(
         list = PersistKeys.get(classInstance) || [],
         restoredData = {} as Partial<T>;
 
-    for (const { key, get, set } of list) {
-        const itemKey = `${storeKey}-${key as string}`;
+    for (const item of list) {
+        const { key, set, get } = item,
+            itemKey = `${storeKey}-${key as string}`;
 
         const value = await load(itemKey);
 
@@ -102,7 +106,7 @@ export async function restore<T extends object>(
             restoredData[key] = patchedValue;
         }
 
-        reaction(
+        item.disposer = reaction(
             () => classInstance[key],
             value => {
                 const patchedValue = set?.(value);
@@ -125,9 +129,65 @@ export async function destroy<T extends object>(
     const { del } = await import('idb-keyval'),
         list = PersistKeys.get(classInstance) || [];
 
-    for (const { key } of list) {
+    for (const { key, disposer } of list) {
         const itemKey = `${storeKey}-${key as string}`;
+
+        disposer?.();
 
         await del(itemKey);
     }
+}
+
+export interface PersistModel {
+    restored?: Promise<void>;
+}
+
+export function persistList<
+    D extends DataObject,
+    F extends Filter<D> = Filter<D>,
+    T extends Constructor<ListModel<D, F>> = Constructor<ListModel<D, F>>
+>(
+    { storeKey } = {} as {
+        storeKey: string | ((instance: T) => string);
+    }
+) {
+    return (Super: T, {}: ClassDecoratorContext) =>
+        class PersistListModel extends Super {
+            restored =
+                globalThis.indexedDB &&
+                restore(
+                    this,
+                    typeof storeKey === 'function'
+                        ? storeKey(this as T & this)
+                        : storeKey
+                );
+            declare client: RESTClient;
+            declare baseURI: string;
+
+            @persist()
+            @observable
+            accessor pageIndex = 0;
+
+            @persist()
+            @observable
+            accessor pageSize = 10;
+
+            @persist()
+            @observable
+            accessor filter = {} as F;
+
+            @persist()
+            @observable
+            accessor totalCount: number | undefined = undefined;
+
+            @persist()
+            @observable
+            accessor pageList: D[][] = [];
+
+            declare loadPage: (
+                pageIndex: number,
+                pageSize: number,
+                filter: F
+            ) => Promise<PageData<D>>;
+        };
 }
