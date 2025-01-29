@@ -24,9 +24,9 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 ```json
 {
     "dependencies": {
-        "koajax": "^3.0.0",
+        "koajax": "^3.1.0",
         "mobx": "^6.13.5",
-        "mobx-restful": "^2.0.0"
+        "mobx-restful": "^2.1.0"
     }
 }
 ```
@@ -217,9 +217,129 @@ export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
 export default new MultipleRepository();
 ```
 
-### File Downloader
+### Data Persistence
+
+`@persist()` & `restore()` functions give us a declarative way to save & restore data to/from [IndexedBD][11], such as these following examples:
+
+#### User Session
+
+```ts
+import { observable } from 'mobx';
+import { BaseModel, persist, restore, toggle } from 'mobx-restful';
+import { Day } from 'web-utility';
+
+import { client } from './client';
+import { User } from './User';
+
+export class SessionModel extends BaseModel {
+    baseURI = 'session';
+    client = client;
+
+    @persist({ expireIn: 15 * Day })
+    @observable
+    user?: User;
+
+    restored = restore(this, 'Session');
+
+    @toggle('uploading')
+    async signIn(username: string, password: string) {
+        const { body } = await this.client.post<User>('session', {
+            username,
+            password
+        });
+        return (this.user = body);
+    }
+}
+
+export default new Session();
+```
+
+#### File Downloader
 
 This module has been moved to [MobX-downloader][12] since MobX-RESTful v2.
+
+#### List Cache
+
+##### `model/Party/Gift.ts`
+
+```ts
+import { ListModel, persistList } from 'mobx-restful';
+
+import { Gift } from '@my-scope/service-type';
+
+import { client } from './client';
+
+@persistList({
+    storeKey: ({ partyId }) => `PartyGift-${partyId}`,
+    expireIn: 2 * Day
+})
+export class PartyGiftModel extends ListModel<Gift> {
+    baseURI = 'party';
+    client = client;
+
+    constructor(public partyId: number) {
+        super();
+        this.baseURI += `/${partyId}/gift`;
+    }
+
+    protected async loadPage(pageIndex: number, pageSize: number) {
+        const { body } = await this.client.get<{
+            count: number;
+            list: Gift[];
+        }>(`${this.baseURI}?${buildURLData({ pageIndex, pageSize })}`);
+
+        return { pageData: body.list, totalCount: body.count };
+    }
+}
+```
+
+##### `page/Party/Gift.tsx`
+
+This example page uses [Cell Router][13] to pass in `partyId` route parameter:
+
+```tsx
+import { observable } from 'mobx';
+import { component, observer, attribute } from 'web-cell';
+
+import { PartyGiftModel } from '../../model/Party/Gift';
+
+@component({ tagName: 'party-gift-page' })
+@observer
+export class PartyGiftPage extends HTMLElement {
+    @attribute
+    @observable
+    accessor partyId = 0;
+
+    @observable
+    accessor store: PartyGiftModel | undefined;
+
+    async connectedCallback() {
+        this.store = new PartyGiftModel(this.partyId);
+
+        await this.store.restored;
+        // this calling will do nothing after the first loading
+        // in list cache period
+        await this.store.getAll();
+    }
+
+    render() {
+        const { allItem } = this.store || {};
+
+        return (
+            <>
+                <h1>Gift wall</h1>
+                <ol>
+                    {allItem.map(({ name, price }) => (
+                        <li key={name}>
+                            {name} - {price}
+                        </li>
+                    ))}
+                </ol>
+            </>
+        );
+    }
+}
+```
 
 ## Wrapper
 
@@ -233,13 +353,14 @@ This module has been moved to [MobX-downloader][12] since MobX-RESTful v2.
 
 ## Scaffold
 
-1.  Client-side Rendering (React): https://github.com/idea2app/Next-Bootstrap-ts
-2.  Server-side Rendering (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
-3.  Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
+1.  Client-side Rendering (React): https://github.com/idea2app/React-MobX-Bootstrap-ts
+2.  Client-side Rendering (Vue): https://github.com/idea2app/Vue-MobX-Prime-ts
+3.  Server-side Rendering (React): https://github.com/idea2app/Next-Bootstrap-ts
+4.  Cross-end App (React): https://github.com/idea2app/Taro-Vant-MobX-ts
 
 ## Limitation
 
--   [ ] [`abstract` hint of Mixin is missing][11]
+- [ ] [`abstract` hint of Mixin is missing][14]
 
 [1]: https://mobx.js.org/
 [2]: https://github.com/tc39/proposal-decorators
@@ -251,5 +372,7 @@ This module has been moved to [MobX-downloader][12] since MobX-RESTful v2.
 [8]: https://pnpm.io/
 [9]: https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/
 [10]: https://github.com/EasyWebApp/WebCell
-[11]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720
+[11]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
 [12]: https://github.com/idea2app/MobX-downloader
+[13]: https://github.com/EasyWebApp/cell-router
+[14]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720
