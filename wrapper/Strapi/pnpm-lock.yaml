@@ -11,6 +11,12 @@ importers:
       '@swc/helpers':
         specifier: ^0.5.17
         version: 0.5.17
+      idb-keyval:
+        specifier: ^6.2.2
+        version: 6.2.2
+      koajax:
+        specifier: ^3.1.2
+        version: 3.1.2(typescript@5.8.3)
       mobx:
         specifier: ^6.13.7
         version: 6.13.7
