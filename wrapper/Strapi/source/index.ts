@@ -10,6 +10,8 @@ import {
     toggle
 } from 'mobx-restful';
 
+export * from './Session';
+
 export interface StrapiDataItem<
     A extends DataObject,
     M extends DataObject = DataObject
@@ -58,7 +60,7 @@ export abstract class StrapiListModel<
 > extends ListModel<D, F> {
     populate: StrapiPopulateQuery<D> = {};
 
-    searchKeys: Exclude<TypeKeys<D, string>, this['indexKey']>[] = [];
+    searchKeys: readonly TypeKeys<D, string>[] = [];
 
     @observable
     accessor keywords = '';
@@ -67,10 +69,8 @@ export abstract class StrapiListModel<
     get searchFilter() {
         const words = this.keywords.split(/\s+/);
 
-        type OrFilter = Record<
-            Exclude<TypeKeys<D, string>, StrapiListModel<D, F>['indexKey']>,
-            { $containsi: string }
-        >;
+        type OrFilter = Record<TypeKeys<D, string>, { $containsi: string }>;
+
         const $or = this.searchKeys
             .map(key => words.map(word => ({ [key]: { $containsi: word } })))
             .flat() as OrFilter[];
@@ -92,7 +92,7 @@ export abstract class StrapiListModel<
             ])
         ) as D;
 
-        return { id, ...data };
+        return { id, ...data } as D;
     }
 
     @toggle('downloading')
@@ -141,7 +141,7 @@ export abstract class StrapiListModel<
         };
     }
 
-    search(keywords: string, pageIndex: number, pageSize: number) {
+    search(keywords: string, pageIndex = 1, pageSize = this.pageSize) {
         this.keywords = keywords;
 
         return this.getList({} as F, pageIndex, pageSize);
