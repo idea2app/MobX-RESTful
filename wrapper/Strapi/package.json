@@ -1,6 +1,6 @@
 {
     "name": "mobx-strapi",
-    "version": "0.6.0",
+    "version": "0.6.3",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "MobX SDK for Strapi headless CMS",
@@ -20,22 +20,32 @@
     "types": "dist/index.d.ts",
     "main": "dist/index.js",
     "dependencies": {
-        "@swc/helpers": "^0.5.15",
-        "mobx": "^6.13.5",
-        "mobx-restful": "^2.0.0",
+        "@swc/helpers": "^0.5.17",
+        "idb-keyval": "^6.2.2",
+        "koajax": "^3.1.2",
+        "mobx": "^6.13.7",
+        "mobx-restful": "^2.1.0",
         "qs": "^6.14.0",
         "regenerator-runtime": "^0.14.1",
-        "web-utility": "^4.4.2"
+        "web-utility": "^4.4.3"
     },
     "devDependencies": {
-        "@parcel/config-default": "~2.13.3",
-        "@parcel/packager-ts": "~2.13.3",
-        "@parcel/transformer-typescript-tsc": "~2.13.3",
-        "@parcel/transformer-typescript-types": "~2.13.3",
-        "@types/qs": "^6.9.18",
-        "mobx": "^6.13.5",
-        "parcel": "~2.13.3",
-        "typescript": "~5.7.3"
+        "@parcel/config-default": "~2.15.4",
+        "@parcel/packager-ts": "~2.15.4",
+        "@parcel/transformer-typescript-tsc": "~2.15.4",
+        "@parcel/transformer-typescript-types": "~2.15.4",
+        "@types/qs": "^6.14.0",
+        "mobx": "^6.13.7",
+        "parcel": "~2.15.4",
+        "typescript": "~5.8.3"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "@parcel/watcher",
+            "@swc/core",
+            "lmdb",
+            "msgpackr-extract"
+        ]
     },
     "browserslist": "> 0.5%, last 2 versions, not dead, IE 11",
     "targets": {

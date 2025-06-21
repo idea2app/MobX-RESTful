@@ -19,16 +19,10 @@ Just define your **Data models** & **Client HTTP methods**, then leave rest of t
 
 ## Usage
 
-### `package.json`
+### Installation
 
-```json
-{
-    "dependencies": {
-        "koajax": "^3.1.0",
-        "mobx": "^6.13.5",
-        "mobx-restful": "^2.1.0"
-    }
-}
+```bash
+npm install koajax mobx mobx-restful
 ```
 
 ### `tsconfig.json`
@@ -343,7 +337,7 @@ export class PartyGiftPage extends HTMLElement {
 
 ## Wrapper
 
-1. [Strapi v4](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Strapi)
+1. [Strapi v4/5](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Strapi)
 2. [GitHub](https://github.com/idea2app/MobX-GitHub)
 3. [Lark/FeiShu](https://github.com/idea2app/MobX-Lark)
 
