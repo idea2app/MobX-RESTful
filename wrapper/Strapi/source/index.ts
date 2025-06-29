@@ -17,6 +17,7 @@ export interface StrapiDataItem<
     M extends DataObject = DataObject
 > {
     id: number;
+    documentId?: string;
     attributes: StrapiNestedData<A>;
     meta: M;
 }
@@ -78,7 +79,7 @@ export abstract class StrapiListModel<
         return { $or };
     }
 
-    protected normalize({ id, attributes }: StrapiDataItem<D>) {
+    protected normalize({ id, documentId, attributes }: StrapiDataItem<D>) {
         const data = Object.fromEntries(
             Object.entries(attributes).map(([key, value]) => [
                 key,
@@ -92,13 +93,15 @@ export abstract class StrapiListModel<
             ])
         ) as D;
 
-        return { id, ...data } as D;
+        return { id, documentId, ...data } as D;
     }
 
     @toggle('downloading')
     async getOne(id: IDType) {
+        const { populate } = this;
+
         const { body } = await this.client.get<StrapiItemWrapper<D>>(
-            `${this.baseURI}/${id}`
+            `${this.baseURI}/${id}?${stringify({ populate }, { encodeValuesOnly: true })}`
         );
         return (this.currentOne = this.normalize(body!.data));
     }
@@ -115,11 +118,19 @@ export abstract class StrapiListModel<
     }
 
     makeFilter(pageIndex: number, pageSize: number, filter: F) {
-        const { populate, keywords } = this;
+        const { indexKey, populate, keywords } = this;
 
         const filters = Object.fromEntries(
-            Object.entries(filter).map(([key, value]) => [key, { $eq: value }])
-        ) as Record<string, { $eq: any }>;
+            Object.entries(filter).map(([key, value]) => [
+                key,
+                key in populate
+                    ? { [indexKey]: { $eq: value } }
+                    : { $eq: value }
+            ])
+        ) as Record<
+            string,
+            { $eq: any } | { [key in typeof indexKey]: { $eq: any } }
+        >;
 
         return {
             populate,

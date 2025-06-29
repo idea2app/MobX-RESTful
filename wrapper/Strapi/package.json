@@ -1,6 +1,6 @@
 {
     "name": "mobx-strapi",
-    "version": "0.6.3",
+    "version": "0.6.6",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "MobX SDK for Strapi headless CMS",
