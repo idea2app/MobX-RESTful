@@ -1,4 +1,4 @@
-import { TypeKeys } from 'web-utility';
+import { IndexKey, TypeKeys } from 'web-utility';
 import { stringify } from 'qs';
 import { computed, observable } from 'mobx';
 import {
@@ -9,6 +9,7 @@ import {
     ListModel,
     toggle
 } from 'mobx-restful';
+import { Base } from './Session';
 
 export * from './Session';
 
@@ -45,6 +46,31 @@ export type StrapiNestedData<T extends DataObject> = {
           : T[K];
 };
 
+export type NotableOperator<T extends string> =
+    | `$${T}`
+    | `$not${Capitalize<T>}`;
+
+export type CaseInsensitive<T extends `$${string}`> = T | `${T}i`;
+
+export type StrapiFilterOperator =
+    | CaseInsensitive<'$eq'>
+    | CaseInsensitive<'$ne'>
+    | `$${'l' | 'g'}t${'' | 'e'}`
+    | NotableOperator<'in'>
+    | CaseInsensitive<NotableOperator<'contains'>>
+    | NotableOperator<'null'>
+    | '$between'
+    | CaseInsensitive<`$${'start' | 'end'}sWith`>
+    | '$or'
+    | '$and'
+    | '$not';
+export type StrapiFilterValue<T = any> = Record<StrapiFilterOperator, T>;
+
+export type StrapiFilter<Index extends IndexKey> = Record<
+    string,
+    StrapiFilterValue | Record<Index, StrapiFilterValue>
+>;
+
 export type StrapiPopulateQuery<D extends DataObject> = {
     [K in TypeKeys<D, DataObject | DataObject[]>]?: {
         populate:
@@ -56,9 +82,14 @@ export type StrapiPopulateQuery<D extends DataObject> = {
 };
 
 export abstract class StrapiListModel<
-    D extends DataObject,
+    D extends Base,
     F extends Filter<D> = Filter<D>
 > extends ListModel<D, F> {
+    operator = {
+        createdAt: '$startsWith',
+        updatedAt: '$startsWith'
+    } as Partial<Record<keyof D, StrapiFilterOperator>>;
+
     populate: StrapiPopulateQuery<D> = {};
 
     searchKeys: readonly TypeKeys<D, string>[] = [];
@@ -118,19 +149,16 @@ export abstract class StrapiListModel<
     }
 
     makeFilter(pageIndex: number, pageSize: number, filter: F) {
-        const { indexKey, populate, keywords } = this;
+        const { indexKey, operator, populate, keywords } = this;
 
         const filters = Object.fromEntries(
             Object.entries(filter).map(([key, value]) => [
                 key,
                 key in populate
                     ? { [indexKey]: { $eq: value } }
-                    : { $eq: value }
+                    : { [key in operator ? operator[key] : '$eq']: value }
             ])
-        ) as Record<
-            string,
-            { $eq: any } | { [key in typeof indexKey]: { $eq: any } }
-        >;
+        ) as StrapiFilter<typeof indexKey>;
 
         return {
             populate,

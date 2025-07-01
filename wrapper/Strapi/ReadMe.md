@@ -53,15 +53,23 @@ if (!['localhost', '127.0.0.1', '0.0.0.0'].includes(location.hostname))
 ### `model/Article.ts`
 
 ```typescript
-import { StrapiListModel } from 'mobx-strapi';
+import { Base, BaseUser, StrapiListModel } from 'mobx-strapi';
 
 import { session } from './Session';
 
-export type Article = Record<'id' | 'title' | 'summary', string>;
+export interface Article extends Base, Record<'title' | 'summary', string> {
+    author: BaseUser;
+}
 
 export class ArticleModel extends StrapiListModel<Article> {
     client = session.client;
     baseURI = 'articles';
+    // for Strapi 5
+    indexKey = 'documentId';
+    // optional
+    operator = { title: '$containsi' } as const;
+    // optional
+    searchKeys = ['title', 'summary'] as const;
 }
 
 export default new ArticleModel();
@@ -75,12 +83,13 @@ Use [WebCell][7] as an Example
 import { component, observer } from 'web-cell';
 
 import articleStore from '../../model/Article';
+import { sessionStore } from '../../model/Session';
 
 @component({ tagName: 'article-page' })
 @observer
 export class ArticlePage extends HTMLElement {
     connectedCallback() {
-        articleStore.getList();
+        articleStore.getList({ author: sessionStore.user?.documentId });
     }
 
     disconnectedCallback() {
