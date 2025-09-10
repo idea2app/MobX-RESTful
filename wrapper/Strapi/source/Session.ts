@@ -71,7 +71,9 @@ export class SessionModel<T extends BaseUser = BaseUser> extends BaseModel {
     client = new HTTPClient({
         baseURI: 'http://localhost:1337/api/',
         responseType: 'json'
-    }).use(({ request }, next) => {
+    }).use(async ({ request }, next) => {
+        await this.restored;
+
         request.headers = {
             ...request.headers,
             'Strapi-Response-Format': 'v4'

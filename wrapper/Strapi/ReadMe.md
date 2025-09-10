@@ -53,7 +53,7 @@ if (!['localhost', '127.0.0.1', '0.0.0.0'].includes(location.hostname))
 ### `model/Article.ts`
 
 ```typescript
-import { Base, BaseUser, StrapiListModel } from 'mobx-strapi';
+import { Base, BaseUser, Searchable, StrapiListModel } from 'mobx-strapi';
 
 import { session } from './Session';
 
@@ -61,7 +61,7 @@ export interface Article extends Base, Record<'title' | 'summary', string> {
     author: BaseUser;
 }
 
-export class ArticleModel extends StrapiListModel<Article> {
+export class ArticleModel extends Searchable<Article>(StrapiListModel) {
     client = session.client;
     baseURI = 'articles';
     // for Strapi 5
