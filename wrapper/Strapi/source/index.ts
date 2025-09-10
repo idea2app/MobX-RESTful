@@ -171,7 +171,7 @@ export function Searchable<
     >
 >(Super: M) {
     abstract class SearchableListMixin extends Super {
-        searchKeys: readonly TypeKeys<D, string>[] = [];
+        abstract searchKeys: readonly TypeKeys<D, string>[];
 
         @observable
         accessor keywords = '';
