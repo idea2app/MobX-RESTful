@@ -92,7 +92,7 @@ export abstract class StrapiListModel<
 
     populate: StrapiPopulateQuery<D> = {};
 
-    protected normalize({ id, documentId, attributes }: StrapiDataItem<D>) {
+    normalize({ id, documentId, attributes }: StrapiDataItem<D>) {
         const data = Object.fromEntries(
             Object.entries(attributes).map(([key, value]) => [
                 key,

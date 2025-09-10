@@ -49,12 +49,13 @@
     },
     "browserslist": "> 0.5%, last 2 versions, not dead, IE 11",
     "targets": {
+        "types": false,
         "main": {
             "optimize": true
         }
     },
     "scripts": {
-        "build": "rm -rf .parcel-cache/ dist/  &&  parcel build",
+        "build": "rm -rf .parcel-cache/ dist/  &&  tsc --emitDeclarationOnly  &&  parcel build",
         "prepublishOnly": "npm run build"
     }
 }
