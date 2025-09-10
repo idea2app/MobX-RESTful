@@ -1,4 +1,4 @@
-import { IndexKey, TypeKeys } from 'web-utility';
+import { AbstractClass, IndexKey, TypeKeys } from 'web-utility';
 import { stringify } from 'qs';
 import { computed, observable } from 'mobx';
 import {
@@ -9,6 +9,7 @@ import {
     ListModel,
     toggle
 } from 'mobx-restful';
+
 import { Base } from './Session';
 
 export * from './Session';
@@ -66,10 +67,9 @@ export type StrapiFilterOperator =
     | '$not';
 export type StrapiFilterValue<T = any> = Record<StrapiFilterOperator, T>;
 
-export type StrapiFilter<Index extends IndexKey> = Record<
-    string,
-    StrapiFilterValue | Record<Index, StrapiFilterValue>
->;
+export type StrapiFilter<Index extends IndexKey> =
+    | Record<string, StrapiFilterValue | Record<Index, StrapiFilterValue>>
+    | Partial<Record<StrapiFilterOperator, StrapiFilter<Index>[]>>;
 
 export type StrapiPopulateQuery<D extends DataObject> = {
     [K in TypeKeys<D, DataObject | DataObject[]>]?: {
@@ -91,24 +91,6 @@ export abstract class StrapiListModel<
     } as Partial<Record<keyof D, StrapiFilterOperator>>;
 
     populate: StrapiPopulateQuery<D> = {};
-
-    searchKeys: readonly TypeKeys<D, string>[] = [];
-
-    @observable
-    accessor keywords = '';
-
-    @computed
-    get searchFilter() {
-        const words = this.keywords.split(/\s+/);
-
-        type OrFilter = Record<TypeKeys<D, string>, { $containsi: string }>;
-
-        const $or = this.searchKeys
-            .map(key => words.map(word => ({ [key]: { $containsi: word } })))
-            .flat() as OrFilter[];
-
-        return { $or };
-    }
 
     protected normalize({ id, documentId, attributes }: StrapiDataItem<D>) {
         const data = Object.fromEntries(
@@ -140,7 +122,7 @@ export abstract class StrapiListModel<
     @toggle('uploading')
     async updateOne(data: NewData<D>, id?: IDType) {
         const { body } = await (id
-            ? this.client.patch<StrapiItemWrapper<D>>(`${this.baseURI}/${id}`, {
+            ? this.client.put<StrapiItemWrapper<D>>(`${this.baseURI}/${id}`, {
                   data
               })
             : this.client.post<StrapiItemWrapper<D>>(this.baseURI, { data }));
@@ -149,7 +131,7 @@ export abstract class StrapiListModel<
     }
 
     makeFilter(pageIndex: number, pageSize: number, filter: F) {
-        const { indexKey, operator, populate, keywords } = this;
+        const { indexKey, operator, populate } = this;
 
         const filters = Object.fromEntries(
             Object.entries(filter).map(([key, value]) => [
@@ -160,11 +142,7 @@ export abstract class StrapiListModel<
             ])
         ) as StrapiFilter<typeof indexKey>;
 
-        return {
-            populate,
-            filters: keywords ? this.searchFilter : filters,
-            pagination: { page: pageIndex, pageSize }
-        };
+        return { populate, filters, pagination: { page: pageIndex, pageSize } };
     }
 
     async loadPage(pageIndex: number, pageSize: number, filter: F) {
@@ -179,10 +157,61 @@ export abstract class StrapiListModel<
             totalCount: body!.meta.pagination.total
         };
     }
+}
 
-    search(keywords: string, pageIndex = 1, pageSize = this.pageSize) {
-        this.keywords = keywords;
+export type SearchableFilter<D extends DataObject> = Filter<D> & {
+    keywords?: string;
+};
 
-        return this.getList({} as F, pageIndex, pageSize);
+export function Searchable<
+    D extends Base,
+    F extends SearchableFilter<D> = SearchableFilter<D>,
+    M extends AbstractClass<StrapiListModel<D, F>> = AbstractClass<
+        StrapiListModel<D, F>
+    >
+>(Super: M) {
+    abstract class SearchableListMixin extends Super {
+        abstract searchKeys: readonly TypeKeys<D, string>[];
+
+        @observable
+        accessor keywords = '';
+
+        @computed
+        get searchFilter() {
+            const words = this.keywords.split(/\s+/);
+
+            type OrFilter = Record<TypeKeys<D, string>, { $containsi: string }>;
+
+            const $or = this.searchKeys
+                .map(key =>
+                    words.map(word => ({ [key]: { $containsi: word } }))
+                )
+                .flat() as OrFilter[];
+
+            return { $or };
+        }
+
+        makeFilter(pageIndex: number, pageSize: number, filter: F) {
+            const { populate, keywords } = this;
+
+            return keywords
+                ? {
+                      populate,
+                      filters: this.searchFilter,
+                      pagination: { page: pageIndex, pageSize }
+                  }
+                : super.makeFilter(pageIndex, pageSize, filter);
+        }
+
+        getList(
+            { keywords, ...filter }: F,
+            pageIndex = 1,
+            pageSize = this.pageSize
+        ) {
+            if (keywords) this.keywords = keywords;
+
+            return this.getList(filter as F, pageIndex, pageSize);
+        }
     }
+    return SearchableListMixin;
 }

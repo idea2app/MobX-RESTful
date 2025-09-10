@@ -1,6 +1,6 @@
 {
     "name": "mobx-strapi",
-    "version": "0.6.7",
+    "version": "0.7.0",
     "license": "LGPL-3.0",
     "author": "shiy2008@gmail.com",
     "description": "MobX SDK for Strapi headless CMS",
@@ -27,7 +27,7 @@
         "mobx-restful": "^2.1.0",
         "qs": "^6.14.0",
         "regenerator-runtime": "^0.14.1",
-        "web-utility": "^4.4.3"
+        "web-utility": "^4.5.3"
     },
     "devDependencies": {
         "@parcel/config-default": "~2.15.4",
@@ -37,7 +37,7 @@
         "@types/qs": "^6.14.0",
         "mobx": "^6.13.7",
         "parcel": "~2.15.4",
-        "typescript": "~5.8.3"
+        "typescript": "~5.9.2"
     },
     "pnpm": {
         "onlyBuiltDependencies": [
