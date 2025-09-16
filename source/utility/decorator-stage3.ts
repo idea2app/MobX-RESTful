@@ -158,6 +158,10 @@ export async function restore<T extends object>(
     classInstance: T,
     storeKey: string
 ) {
+    if (!globalThis.indexedDB)
+        return console.warn(
+            'IndexedDB is not found in this runtime engine, MobX-RESTful persistence is disabled.'
+        );
     const list = PersistNodes.get(classInstance) || [],
         restoredData = {} as Partial<T>;
 

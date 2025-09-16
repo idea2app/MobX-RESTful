@@ -1,4 +1,4 @@
-import { AbstractClass, IndexKey, TypeKeys } from 'web-utility';
+import { AbstractClass, IndexKey, makeDateRange, TypeKeys } from 'web-utility';
 import { stringify } from 'qs';
 import { computed, observable } from 'mobx';
 import {
@@ -81,16 +81,24 @@ export type StrapiPopulateQuery<D extends DataObject> = {
     };
 };
 
+export type StrapiQuery<D extends Base> = Partial<{
+    filters: StrapiFilter<keyof D>;
+    sort: string[];
+    pagination: Record<'page' | 'pageSize', number>;
+    populate: StrapiPopulateQuery<D>;
+}>;
+
 export abstract class StrapiListModel<
     D extends Base,
     F extends Filter<D> = Filter<D>
 > extends ListModel<D, F> {
-    operator = {
-        createdAt: '$startsWith',
-        updatedAt: '$startsWith'
-    } as Partial<Record<keyof D, StrapiFilterOperator>>;
+    operator: Partial<Record<keyof D, StrapiFilterOperator>> = {};
+
+    sort: Partial<Record<keyof D, 'asc' | 'desc'>> = {};
 
     populate: StrapiPopulateQuery<D> = {};
+
+    dateKeys: readonly TypeKeys<D, string>[] = [];
 
     normalize({ id, documentId, attributes }: StrapiDataItem<D>) {
         const data = Object.fromEntries(
@@ -130,19 +138,25 @@ export abstract class StrapiListModel<
         return (this.currentOne = this.normalize(body!.data));
     }
 
-    makeFilter(pageIndex: number, pageSize: number, filter: F) {
-        const { indexKey, operator, populate } = this;
+    makeFilter(pageIndex: number, pageSize: number, filter: F): StrapiQuery<D> {
+        const { indexKey, operator, populate, dateKeys } = this,
+            pagination = { page: pageIndex, pageSize };
 
         const filters = Object.fromEntries(
             Object.entries(filter).map(([key, value]) => [
                 key,
                 key in populate
                     ? { [indexKey]: { $eq: value } }
-                    : { [key in operator ? operator[key] : '$eq']: value }
+                    : key in dateKeys
+                      ? { $between: makeDateRange(value + '') }
+                      : { [key in operator ? operator[key] : '$eq']: value }
             ])
         ) as StrapiFilter<typeof indexKey>;
 
-        return { populate, filters, pagination: { page: pageIndex, pageSize } };
+        const sort = Object.entries(this.sort).map(
+            ([key, value]) => `${key}:${value}`
+        );
+        return { populate, filters, sort, pagination };
     }
 
     async loadPage(pageIndex: number, pageSize: number, filter: F) {
@@ -192,25 +206,22 @@ export function Searchable<
         }
 
         makeFilter(pageIndex: number, pageSize: number, filter: F) {
-            const { populate, keywords } = this;
+            const { populate, keywords } = this,
+                pagination = { page: pageIndex, pageSize };
 
             return keywords
-                ? {
-                      populate,
-                      filters: this.searchFilter,
-                      pagination: { page: pageIndex, pageSize }
-                  }
+                ? { populate, filters: this.searchFilter, pagination }
                 : super.makeFilter(pageIndex, pageSize, filter);
         }
 
         getList(
             { keywords, ...filter }: F,
-            pageIndex = 1,
+            pageIndex = this.pageIndex + 1,
             pageSize = this.pageSize
         ) {
             if (keywords) this.keywords = keywords;
 
-            return this.getList(filter as F, pageIndex, pageSize);
+            return super.getList(filter as F, pageIndex, pageSize);
         }
     }
     return SearchableListMixin;
