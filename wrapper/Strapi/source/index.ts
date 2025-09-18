@@ -1,33 +1,20 @@
 import { AbstractClass, IndexKey, makeDateRange, TypeKeys } from 'web-utility';
 import { stringify } from 'qs';
 import { computed, observable } from 'mobx';
-import {
-    IDType,
-    DataObject,
-    NewData,
-    Filter,
-    ListModel,
-    toggle
-} from 'mobx-restful';
+import { IDType, DataObject, NewData, Filter, ListModel, toggle } from 'mobx-restful';
 
-import { Base } from './Session';
+import { Base } from './User';
 
-export * from './Session';
+export * from './User';
 
-export interface StrapiDataItem<
-    A extends DataObject,
-    M extends DataObject = DataObject
-> {
+export interface StrapiDataItem<A extends DataObject, M extends DataObject = DataObject> {
     id: number;
     documentId?: string;
     attributes: StrapiNestedData<A>;
     meta: M;
 }
 
-export interface StrapiItemWrapper<
-    A extends DataObject,
-    M extends DataObject = DataObject
-> {
+export interface StrapiItemWrapper<A extends DataObject, M extends DataObject = DataObject> {
     data: StrapiDataItem<A>;
     meta?: M;
 }
@@ -47,9 +34,7 @@ export type StrapiNestedData<T extends DataObject> = {
           : T[K];
 };
 
-export type NotableOperator<T extends string> =
-    | `$${T}`
-    | `$not${Capitalize<T>}`;
+export type NotableOperator<T extends string> = `$${T}` | `$not${Capitalize<T>}`;
 
 export type CaseInsensitive<T extends `$${string}`> = T | `${T}i`;
 
@@ -81,7 +66,7 @@ export type StrapiPopulateQuery<D extends DataObject> = {
     };
 };
 
-export type StrapiQuery<D extends Base> = Partial<{
+export type StrapiQuery<D extends DataObject> = Partial<{
     filters: StrapiFilter<keyof D>;
     sort: string[];
     pagination: Record<'page' | 'pageSize', number>;
@@ -106,9 +91,7 @@ export abstract class StrapiListModel<
                 key,
                 value?.data
                     ? Array.isArray(value.data)
-                        ? (value as StrapiListWrapper<any>).data.map(item =>
-                              this.normalize(item)
-                          )
+                        ? (value as StrapiListWrapper<any>).data.map(item => this.normalize(item))
                         : this.normalize(value.data)
                     : value
             ])
@@ -153,18 +136,15 @@ export abstract class StrapiListModel<
             ])
         ) as StrapiFilter<typeof indexKey>;
 
-        const sort = Object.entries(this.sort).map(
-            ([key, value]) => `${key}:${value}`
-        );
+        const sort = Object.entries(this.sort).map(([key, value]) => `${key}:${value}`);
         return { populate, filters, sort, pagination };
     }
 
     async loadPage(pageIndex: number, pageSize: number, filter: F) {
         const { body } = await this.client.get<StrapiListWrapper<D>>(
-            `${this.baseURI}?${stringify(
-                this.makeFilter(pageIndex, pageSize, filter),
-                { encodeValuesOnly: true }
-            )}`
+            `${this.baseURI}?${stringify(this.makeFilter(pageIndex, pageSize, filter), {
+                encodeValuesOnly: true
+            })}`
         );
         return {
             pageData: body!.data.map(item => this.normalize(item)),
@@ -173,16 +153,14 @@ export abstract class StrapiListModel<
     }
 }
 
-export type SearchableFilter<D extends DataObject> = Filter<D> & {
+export type SearchableFilter<D extends Base> = Filter<D> & {
     keywords?: string;
 };
 
 export function Searchable<
     D extends Base,
     F extends SearchableFilter<D> = SearchableFilter<D>,
-    M extends AbstractClass<StrapiListModel<D, F>> = AbstractClass<
-        StrapiListModel<D, F>
-    >
+    M extends AbstractClass<StrapiListModel<D, F>> = AbstractClass<StrapiListModel<D, F>>
 >(Super: M) {
     abstract class SearchableListMixin extends Super {
         abstract searchKeys: readonly TypeKeys<D, string>[];
@@ -197,9 +175,7 @@ export function Searchable<
             type OrFilter = Record<TypeKeys<D, string>, { $containsi: string }>;
 
             const $or = this.searchKeys
-                .map(key =>
-                    words.map(word => ({ [key]: { $containsi: word } }))
-                )
+                .map(key => words.map(word => ({ [key]: { $containsi: word } })))
                 .flat() as OrFilter[];
 
             return { $or };
