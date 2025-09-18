@@ -9,9 +9,9 @@ export type NewData<
     D extends DataObject,
     N extends DataObject = DataObject
 > = Omit<D, TypeKeys<D, N> | TypeKeys<D, N[]>> & {
-    [K in TypeKeys<D, N>]: IDType;
+    [K in TypeKeys<D, N>]: IDType | D[K];
 } & {
-    [K in TypeKeys<D, N[]>]: IDType[];
+    [K in TypeKeys<D, N[]>]: IDType[] | D[K];
 };
 
 export type RESTClient = Pick<

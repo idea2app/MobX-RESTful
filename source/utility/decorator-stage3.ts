@@ -90,6 +90,13 @@ export class PersistNode<V = any, S = any> implements PersistMeta<V, S> {
         Object.assign(this, meta);
     }
 
+    private static readyIDB?: Promise<any>;
+
+    static detectIDB = () =>
+        (this.readyIDB ||= import('idb-keyval').then(({ get }) =>
+            get('ready')
+        ));
+
     async save(storeKey: string, value?: V) {
         if (value != null)
             this.value = toJS((await this.set?.(value)) ?? value);
@@ -158,10 +165,13 @@ export async function restore<T extends object>(
     classInstance: T,
     storeKey: string
 ) {
-    if (!globalThis.indexedDB)
+    try {
+        await PersistNode.detectIDB();
+    } catch {
         return console.warn(
-            'IndexedDB is not found in this runtime engine, MobX-RESTful persistence is disabled.'
+            'IndexedDB or its polyfill is not found in this runtime engine, MobX-RESTful persistence is disabled.'
         );
+    }
     const list = PersistNodes.get(classInstance) || [],
         restoredData = {} as Partial<T>;
 

@@ -128,7 +128,7 @@ export abstract class StrapiListModel<
     }
 
     @toggle('uploading')
-    async updateOne(data: NewData<D>, id?: IDType) {
+    async updateOne(data: Partial<NewData<D>>, id?: IDType) {
         const { body } = await (id
             ? this.client.put<StrapiItemWrapper<D>>(`${this.baseURI}/${id}`, {
                   data
@@ -147,7 +147,7 @@ export abstract class StrapiListModel<
                 key,
                 key in populate
                     ? { [indexKey]: { $eq: value } }
-                    : key in dateKeys
+                    : dateKeys.includes(key as TypeKeys<D, string>)
                       ? { $between: makeDateRange(value + '') }
                       : { [key in operator ? operator[key] : '$eq']: value }
             ])
