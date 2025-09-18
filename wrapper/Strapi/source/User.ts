@@ -1,53 +1,11 @@
-import { components } from '@octokit/openapi-types';
 import { clear } from 'idb-keyval';
 import { HTTPClient, HTTPError } from 'koajax';
 import { observable } from 'mobx';
 import { Filter, IDType, NewData, persist, restore, toggle } from 'mobx-restful';
 import { stringify } from 'qs';
 
-import { StrapiListModel } from './index';
-
-export type Base = Record<'documentId' | 'createdAt' | 'updatedAt', string> & {
-    id: number;
-};
-export type BaseUser = Base &
-    Record<'username' | 'email' | 'provider', string> &
-    Record<'confirmed' | 'blocked', boolean>;
-
-export type GithubUser = components['schemas']['public-user'];
-
-export type OAuthProvider =
-    | 'auth0'
-    | 'cognito'
-    | 'cas'
-    | 'discord'
-    | 'facebook'
-    | 'github'
-    | 'google'
-    | 'instagram'
-    | 'keycloak'
-    | 'linkedin'
-    | 'patreon'
-    | 'reddit'
-    | 'twitch'
-    | 'twitter'
-    | 'vk';
-export type Media = Base &
-    Record<
-        | 'name'
-        | 'ext'
-        | 'mime'
-        | 'hash'
-        | 'url'
-        | 'previewUrl'
-        | 'provider'
-        | 'alternativeText'
-        | 'caption',
-        string
-    > &
-    Record<'width' | 'height' | 'formats' | 'size', number> & {
-        provider_metadata: {};
-    };
+import { StrapiListModel } from './List';
+import { BaseUser, GithubUser, Media, OAuthProvider } from './type';
 
 export class UserModel<
     D extends BaseUser = BaseUser,
