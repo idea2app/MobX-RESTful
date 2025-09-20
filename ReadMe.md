@@ -136,9 +136,7 @@ import { Buffer } from 'mobx-restful';
 import { client } from './client';
 import { Repository, RepositoryModel } from './Repository';
 
-export class PreloadRepositoryModel extends Buffer<Repository>(
-    RepositoryModel
-) {
+export class PreloadRepositoryModel extends Buffer<Repository>(RepositoryModel) {
     client = client;
     baseURI = 'orgs/idea2app/repos';
 
@@ -174,9 +172,7 @@ export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
         this.totalCount = public_repos;
 
         for (let i = 1; ; i++) {
-            const { body } = await this.client.get<Repository[]>(
-                'orgs/idea2app/repos?page=' + i
-            );
+            const { body } = await this.client.get<Repository[]>('orgs/idea2app/repos?page=' + i);
             if (!body[0]) break;
 
             yield* body;
@@ -191,9 +187,7 @@ export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
         this.totalCount = public_repos;
 
         for (let i = 1; ; i++) {
-            const { body } = await this.client.get<Repository[]>(
-                'users/TechQuery/repos?page=' + i
-            );
+            const { body } = await this.client.get<Repository[]>('users/TechQuery/repos?page=' + i);
             if (!body[0]) break;
 
             yield* body;
@@ -201,10 +195,7 @@ export class MultipleRepository extends Stream<Repository>(RepositoryModel) {
     }
 
     openStream() {
-        return mergeStream(
-            this.getOrgRepos.bind(this),
-            this.getUserRepos.bind(this)
-        );
+        return mergeStream(this.getOrgRepos.bind(this), this.getUserRepos.bind(this));
     }
 }
 
@@ -340,6 +331,11 @@ export class PartyGiftPage extends HTMLElement {
 1. [Strapi v4/5](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Strapi)
 2. [GitHub](https://github.com/idea2app/MobX-GitHub)
 3. [Lark/FeiShu](https://github.com/idea2app/MobX-Lark)
+
+## Utility
+
+1. [Data Migrator](https://github.com/idea2app/MobX-RESTful-migrator)
+2. [File Downloader][12]
 
 ## Component
 

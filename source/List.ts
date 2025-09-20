@@ -1,11 +1,5 @@
 import { action, computed, observable, toJS } from 'mobx';
-import {
-    AbstractClass,
-    IndexKey,
-    TypeKeys,
-    countBy,
-    splitArray
-} from 'web-utility';
+import { AbstractClass, IndexKey, TypeKeys, countBy, splitArray } from 'web-utility';
 
 import { BaseListModel } from './Base';
 import { DataObject, IDType, NewData, toggle } from './utility';
@@ -47,9 +41,7 @@ export abstract class ListModel<
 
     @computed
     get pageCount() {
-        return (
-            Math.ceil(this.totalCount / this.pageSize) || this.pageList.length
-        );
+        return Math.ceil(this.totalCount / this.pageSize) || this.pageList.length;
     }
 
     @computed
@@ -57,13 +49,10 @@ export abstract class ListModel<
         const pageList = toJS(this.pageList),
             { pageSize, totalCount } = this;
 
-        const index = [...pageList]
-            .reverse()
-            .findIndex(item => item?.[0] != null);
+        const index = [...pageList].reverse().findIndex(item => item?.[0] != null);
 
-        return Array.from<D[], D[]>(
-            pageList.slice(0, -index || Infinity),
-            page => (page?.[0] ? page : new Array(pageSize).fill({}))
+        return Array.from<D[], D[]>(pageList.slice(0, -index || Infinity), page =>
+            page?.[0] ? page : new Array(pageSize).fill({})
         )
             .flat()
             .slice(0, totalCount || 0);
@@ -97,9 +86,7 @@ export abstract class ListModel<
         pageSize = this.pageSize,
         allItems = this.allItems,
         totalCount = Infinity
-    }: Partial<
-        Pick<ListModel<D>, 'pageIndex' | 'pageSize' | 'allItems' | 'totalCount'>
-    > = {}) {
+    }: Partial<Pick<ListModel<D>, 'pageIndex' | 'pageSize' | 'allItems' | 'totalCount'>> = {}) {
         if (!allItems.length) return;
 
         this.pageList = splitArray(allItems, pageSize);
@@ -113,31 +100,22 @@ export abstract class ListModel<
         this.pageIndex = pageIndex;
 
         if (this.pageSize !== pageSize)
-            this.pageList = splitArray(
-                this.allItems,
-                (this.pageSize = pageSize)
-            );
+            this.pageList = splitArray(this.allItems, (this.pageSize = pageSize));
+
         return this;
     }
 
     /**
      * @protected
      */
-    abstract loadPage(
-        pageIndex: number,
-        pageSize: number,
-        filter: F
-    ): Promise<PageData<D>>;
+    abstract loadPage(pageIndex: number, pageSize: number, filter: F): Promise<PageData<D>>;
 
     /**
      * @protected
      */
     async loadNewPage(pageIndex: number, pageSize: number, filter: F) {
-        const { pageData, totalCount } = await this.loadPage(
-            pageIndex,
-            pageSize,
-            filter
-        );
+        const { pageData, totalCount } = await this.loadPage(pageIndex, pageSize, filter);
+
         this.pageSize = pageSize;
 
         const list = [...this.pageList];
@@ -161,11 +139,8 @@ export abstract class ListModel<
         pageIndex = this.pageIndex + 1,
         pageSize = this.pageSize
     ) {
-        const { pageData } = await this.loadNewPage(
-            pageIndex,
-            pageSize,
-            filter
-        );
+        const { pageData } = await this.loadNewPage(pageIndex, pageSize, filter);
+
         this.filter = filter;
 
         this.turnTo(pageIndex, pageSize);
@@ -181,10 +156,16 @@ export abstract class ListModel<
         return this.getList(filter, 1, pageSize);
     }
 
-    async getAll(filter: F = this.filter, pageSize = this.pageSize) {
-        while (!this.noMore) await this.getList(filter, undefined, pageSize);
+    async *getAllInStream(filter: F = this.filter, pageSize = this.pageSize) {
+        this.pageIndex = 0;
 
-        return this.allItems;
+        while (!this.noMore) yield* await this.getList(filter, undefined, pageSize);
+    }
+
+    [Symbol.asyncIterator] = this.getAllInStream;
+
+    getAll(filter: F = this.filter, pageSize = this.pageSize) {
+        return Array.fromAsync(this.getAllInStream(filter, pageSize));
     }
 
     async countAll(
@@ -234,18 +215,11 @@ export abstract class ListModel<
     async removeOne(id: IDType) {
         const { filter, pageIndex, allItems } = this,
             index = this.indexOf(id);
-        const { pageData } = await this.loadPage(
-            allItems.length + 1,
-            1,
-            filter
-        );
+        const { pageData } = await this.loadPage(allItems.length + 1, 1, filter);
+
         return this.restoreList({
             pageIndex,
-            allItems: [
-                ...allItems.slice(0, index),
-                ...allItems.slice(index + 1),
-                ...pageData
-            ],
+            allItems: [...allItems.slice(0, index), ...allItems.slice(index + 1), ...pageData],
             totalCount: this.totalCount--
         });
     }
@@ -301,14 +275,12 @@ export function Buffer<
 
             const nextIndex = pageIndex + 1;
 
-            this.pendingList[nextIndex] = this.loadNewPage(
-                nextIndex,
-                pageSize,
-                filter
-            ).then(data => {
-                this.pendingList[nextIndex] = undefined;
-                return data;
-            });
+            this.pendingList[nextIndex] = this.loadNewPage(nextIndex, pageSize, filter).then(
+                data => {
+                    this.pendingList[nextIndex] = undefined;
+                    return data;
+                }
+            );
             return list;
         }
     }
@@ -343,15 +315,11 @@ export function Stream<
             allItems = this.allItems,
             totalCount = Infinity
         }: Partial<
-            Pick<
-                ListModel<D>,
-                'filter' | 'pageIndex' | 'pageSize' | 'allItems' | 'totalCount'
-            >
+            Pick<ListModel<D>, 'filter' | 'pageIndex' | 'pageSize' | 'allItems' | 'totalCount'>
         > = {}) {
             super.restoreList({ pageIndex, pageSize, allItems, totalCount });
 
-            if (allItems.length)
-                await this.loadStream(filter as F, allItems.length);
+            if (allItems.length) await this.loadStream(filter as F, allItems.length);
         }
 
         /**
@@ -379,15 +347,12 @@ export function Stream<
             const { totalCount, allItems } = this,
                 requiredCount = pageIndex * pageSize;
             const newCount =
-                (totalCount
-                    ? Math.min(totalCount, requiredCount)
-                    : requiredCount) - allItems.length;
+                (totalCount ? Math.min(totalCount, requiredCount) : requiredCount) -
+                allItems.length;
             const newList = await this.loadStream(filter, newCount);
 
-            this.pageList = splitArray(
-                [...this.allItems, ...newList],
-                pageSize
-            );
+            this.pageList = splitArray([...this.allItems, ...newList], pageSize);
+
             return {
                 pageData: this.pageList[pageIndex - 1] || [],
                 totalCount: this.totalCount

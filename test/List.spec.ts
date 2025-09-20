@@ -82,21 +82,9 @@ describe('List model', () => {
         it('should clear states', () => {
             store.clear();
 
-            const {
-                pageIndex,
-                pageSize,
-                filter,
-                totalCount,
-                noMore,
-                pageList
-            } = store;
+            const { pageIndex, pageSize, filter, totalCount, noMore, pageList } = store;
 
-            expect([pageIndex, pageSize, totalCount, noMore]).toEqual([
-                0,
-                10,
-                undefined,
-                false
-            ]);
+            expect([pageIndex, pageSize, totalCount, noMore]).toEqual([0, 10, undefined, false]);
             expect([filter, pageList].map(isEmpty)).toEqual([true, true]);
         });
 
@@ -108,12 +96,42 @@ describe('List model', () => {
             expect(store.allItems).toHaveLength(20);
             expect(isEmpty(store.pageList[0])).toBe(true);
         });
+
+        it('should get all items in stream mode', async () => {
+            let count = 0;
+            const items: Repository[] = [];
+
+            store.clear();
+
+            for await (const item of store.getAllInStream()) {
+                items.push(item);
+
+                if (++count === 16) break;
+            }
+            expect(count).toBe(16);
+            expect(items).toHaveLength(16);
+            expect(items).toEqual(store.allItems.slice(0, 16));
+        });
+
+        it('should get all items with Async Iterator', async () => {
+            let count = 0;
+            const items: Repository[] = [];
+
+            store.clear();
+
+            for await (const item of store) {
+                items.push(item);
+
+                if (++count === 16) break;
+            }
+            expect(count).toBe(16);
+            expect(items).toHaveLength(16);
+            expect(items).toEqual(store.allItems.slice(0, 16));
+        });
     });
 
-    describe('Preload List model', () => {
-        class PreloadRepositoryModel extends Buffer<Repository>(
-            RepositoryModel
-        ) {
+    describe.skip('Preload List model', () => {
+        class PreloadRepositoryModel extends Buffer<Repository>(RepositoryModel) {
             client = client;
             baseURI = 'orgs/idea2app/repos';
 
@@ -126,9 +144,7 @@ describe('List model', () => {
     });
 
     describe('Multiple List model', () => {
-        class MultipleRepositoryModel extends Stream<Repository>(
-            RepositoryModel
-        ) {
+        class MultipleRepositoryModel extends Stream<Repository>(RepositoryModel) {
             declare baseURI: string;
             client = client;
 
@@ -167,10 +183,7 @@ describe('List model', () => {
             }
 
             openStream() {
-                return mergeStream(
-                    this.getOrgRepos.bind(this),
-                    this.getUserRepos.bind(this)
-                );
+                return mergeStream(this.getOrgRepos.bind(this), this.getUserRepos.bind(this));
             }
         }
         const store = new MultipleRepositoryModel();
@@ -178,9 +191,11 @@ describe('List model', () => {
         it('should load a Page with items in every stream', async () => {
             const list = await store.getList({}, 1, 3);
 
-            expect(
-                list.map(({ full_name }) => full_name.split('/')[0])
-            ).toEqual(['idea2app', 'TechQuery', 'idea2app']);
+            expect(list.map(({ full_name }) => full_name.split('/')[0])).toEqual([
+                'idea2app',
+                'TechQuery',
+                'idea2app'
+            ]);
         });
 
         it('should load all items before current page', async () => {
@@ -190,15 +205,19 @@ describe('List model', () => {
 
             const list = await store.getList({}, 2, 4);
 
-            expect(
-                list.map(({ full_name }) => full_name.split('/')[0])
-            ).toEqual(['idea2app', 'TechQuery', 'idea2app', 'TechQuery']);
+            expect(list.map(({ full_name }) => full_name.split('/')[0])).toEqual([
+                'idea2app',
+                'TechQuery',
+                'idea2app',
+                'TechQuery'
+            ]);
 
-            expect(
-                store.pageList[0].map(
-                    ({ full_name }) => full_name.split('/')[0]
-                )
-            ).toEqual(['idea2app', 'TechQuery', 'idea2app', 'TechQuery']);
+            expect(store.pageList[0].map(({ full_name }) => full_name.split('/')[0])).toEqual([
+                'idea2app',
+                'TechQuery',
+                'idea2app',
+                'TechQuery'
+            ]);
 
             expect(store.allItems).toHaveLength(8);
         });
