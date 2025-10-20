@@ -5,32 +5,19 @@ import { BaseModel } from '../Base';
 import { Filter, ListModel, PageData } from '../List';
 import { DataObject, RESTClient } from './type';
 
-export function toggle<T extends BaseModel>(
-    property: TypeKeys<T, boolean | number>
-) {
-    return (
-        origin: (...data: any[]) => Promise<any>,
-        {}: ClassMethodDecoratorContext
-    ) =>
+export function toggle<T extends BaseModel>(property: TypeKeys<T, boolean | number>) {
+    return (origin: (...data: any[]) => Promise<any>, {}: ClassMethodDecoratorContext) =>
         async function (this: T, ...data: any[]) {
             var value = Reflect.get(this, property);
 
-            Reflect.set(
-                this,
-                property,
-                typeof value === 'number' ? ++value : true
-            );
+            Reflect.set(this, property, typeof value === 'number' ? ++value : true);
 
             try {
                 return await origin.apply(this, data);
             } finally {
                 value = Reflect.get(this, property);
 
-                Reflect.set(
-                    this,
-                    property,
-                    typeof value === 'number' ? --value : false
-                );
+                Reflect.set(this, property, typeof value === 'number' ? --value : false);
             }
         };
 }
@@ -38,21 +25,14 @@ export function toggle<T extends BaseModel>(
 export function toggleNotification<T extends BaseModel>(
     message: string | ((instance: T) => string)
 ) {
-    return (
-        origin: (...data: any[]) => Promise<any>,
-        {}: ClassMemberDecoratorContext
-    ) =>
+    return (origin: (...data: any[]) => Promise<any>, {}: ClassMemberDecoratorContext) =>
         async function (this: T, ...data: any[]) {
-            const notification = Notification.requestPermission().then(
-                permission => {
-                    if (permission === 'granted')
-                        return new Notification(
-                            typeof message === 'function'
-                                ? message(this)
-                                : message
-                        );
-                }
-            );
+            const notification = Notification.requestPermission().then(permission => {
+                if (permission === 'granted')
+                    return new Notification(
+                        typeof message === 'function' ? message(this) : message
+                    );
+            });
             try {
                 return await origin.apply(this, data);
             } finally {
@@ -92,14 +72,16 @@ export class PersistNode<V = any, S = any> implements PersistMeta<V, S> {
 
     private static readyIDB?: Promise<any>;
 
-    static detectIDB = () =>
-        (this.readyIDB ||= import('idb-keyval').then(({ get }) =>
-            get('ready')
-        ));
+    static async detectIDB() {
+        if (this.readyIDB) return this.readyIDB;
+
+        const { get } = await import('idb-keyval');
+
+        return (this.readyIDB = get('ready'));
+    }
 
     async save(storeKey: string, value?: V) {
-        if (value != null)
-            this.value = toJS((await this.set?.(value)) ?? value);
+        if (value != null) this.value = toJS((await this.set?.(value)) ?? value);
 
         const { set } = await import('idb-keyval'),
             data: PersistBox<V, S> = {
@@ -114,8 +96,7 @@ export class PersistNode<V = any, S = any> implements PersistMeta<V, S> {
 
         storeKey += `-${this.key}`;
 
-        const { value, expireAt } =
-            (await get<PersistBox<V, S>>(storeKey)) ?? {};
+        const { value, expireAt } = (await get<PersistBox<V, S>>(storeKey)) ?? {};
 
         if (expireAt && expireAt < Date.now()) {
             delete this.value;
@@ -142,10 +123,7 @@ export type PersistFieldMeta<V = any, S = any> = Pick<
     'set' | 'get' | 'expireIn'
 >;
 
-export function persist<T, V, S>({
-    expireIn = Infinity,
-    ...meta
-}: PersistFieldMeta<V, S> = {}) {
+export function persist<T, V, S>({ expireIn = Infinity, ...meta }: PersistFieldMeta<V, S> = {}) {
     return (
         {}: ClassAccessorDecoratorTarget<T, V>,
         { name, addInitializer }: ClassAccessorDecoratorContext<T, V>
@@ -153,18 +131,13 @@ export function persist<T, V, S>({
         addInitializer(function () {
             const list = PersistNodes.get(this) || [];
 
-            list.push(
-                new PersistNode({ ...meta, key: name.toString(), expireIn })
-            );
+            list.push(new PersistNode({ ...meta, key: name.toString(), expireIn }));
             PersistNodes.set(this, list);
         });
     };
 }
 
-export async function restore<T extends object>(
-    classInstance: T,
-    storeKey: string
-) {
+export async function restore<T extends object>(classInstance: T, storeKey: string) {
     try {
         await PersistNode.detectIDB();
     } catch {
@@ -196,10 +169,7 @@ export async function restore<T extends object>(
     console.groupEnd();
 }
 
-export async function destroy<T extends object>(
-    classInstance: T,
-    storeKey: string
-) {
+export async function destroy<T extends object>(classInstance: T, storeKey: string) {
     const list = PersistNodes.get(classInstance) || [];
 
     for (const node of list) await node.destroy(storeKey);
@@ -247,9 +217,7 @@ export function persistList<
                 globalThis.indexedDB &&
                 restore(
                     this,
-                    typeof storeKey === 'function'
-                        ? storeKey(this as InstanceType<T>)
-                        : storeKey
+                    typeof storeKey === 'function' ? storeKey(this as InstanceType<T>) : storeKey
                 );
             declare loadPage: (
                 pageIndex: number,
