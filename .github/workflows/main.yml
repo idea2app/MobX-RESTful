@@ -31,10 +31,7 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Build & Publish the Strapi package
-              run: |
-                  cd wrapper/Strapi
-                  pnpm i --frozen-lockfile
-                  npm publish  ||  true
+              run: bash wrapper/publish.sh  ||  true
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

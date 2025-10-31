@@ -89,7 +89,7 @@ export default new RepositoryModel();
 
 #### `page/Repository.tsx`
 
-Use [WebCell][10] as an Example
+Use [WebCell][7] as an Example
 
 ```tsx
 import { component, observer } from 'web-cell';
@@ -204,7 +204,7 @@ export default new MultipleRepository();
 
 ### Data Persistence
 
-`@persist()` & `restore()` functions give us a declarative way to save & restore data to/from [IndexedBD][11], such as these following examples:
+`@persist()` & `restore()` functions give us a declarative way to save & restore data to/from [IndexedBD][8], such as these following examples:
 
 #### User Session
 
@@ -241,7 +241,7 @@ export default new Session();
 
 #### File Downloader
 
-This module has been moved to [MobX-downloader][12] since MobX-RESTful v2.
+This module has been moved to [MobX-downloader][9] since MobX-RESTful v2.
 
 #### List Cache
 
@@ -280,7 +280,7 @@ export class PartyGiftModel extends ListModel<Gift> {
 
 ##### `page/Party/Gift.tsx`
 
-This example page uses [Cell Router][13] to pass in `partyId` route parameter:
+This example page uses [Cell Router][10] to pass in `partyId` route parameter:
 
 ```tsx
 import { observable } from 'mobx';
@@ -329,13 +329,14 @@ export class PartyGiftPage extends HTMLElement {
 ## Wrapper
 
 1. [Strapi v4/5](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Strapi)
-2. [GitHub](https://github.com/idea2app/MobX-GitHub)
-3. [Lark/FeiShu](https://github.com/idea2app/MobX-Lark)
+2. [Supabase (PostgREST)](https://github.com/idea2app/MobX-RESTful/blob/main/wrapper/Supabase)
+3. [GitHub](https://github.com/idea2app/MobX-GitHub)
+4. [Lark/FeiShu](https://github.com/idea2app/MobX-Lark)
 
 ## Utility
 
 1. [Data Migrator](https://github.com/idea2app/MobX-RESTful-migrator)
-2. [File Downloader][12]
+2. [File Downloader][9]
 
 ## Component
 
@@ -350,19 +351,16 @@ export class PartyGiftPage extends HTMLElement {
 
 ## Limitation
 
-- [ ] [`abstract` hint of Mixin is missing][14]
+- [ ] [`abstract` hint of Mixin is missing][11]
 
 [1]: https://mobx.js.org/
 [2]: https://github.com/tc39/proposal-decorators
 [3]: https://en.wikipedia.org/wiki/Representational_state_transfer
 [4]: https://libraries.io/npm/mobx-restful
 [5]: https://github.com/idea2app/MobX-RESTful/actions/workflows/main.yml
-[6]: https://nodei.co/npm/mobx-restful/
-[7]: https://yarnpkg.com/
-[8]: https://pnpm.io/
-[9]: https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/
-[10]: https://github.com/EasyWebApp/WebCell
-[11]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
-[12]: https://github.com/idea2app/MobX-downloader
-[13]: https://github.com/EasyWebApp/cell-router
-[14]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720
+[6]: https://www.npmjs.com/package/mobx-restful
+[7]: https://github.com/EasyWebApp/WebCell
+[8]: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
+[9]: https://github.com/idea2app/MobX-downloader
+[10]: https://github.com/EasyWebApp/cell-router
+[11]: https://github.com/microsoft/TypeScript/issues/39752#issuecomment-1239810720
