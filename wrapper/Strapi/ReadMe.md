@@ -124,6 +124,6 @@ export class ArticlePage extends HTMLElement {
 [2]: https://strapi.io/
 [3]: https://libraries.io/npm/mobx-strapi
 [4]: https://github.com/strapi/awesome-strapi
-[5]: https://nodei.co/npm/mobx-strapi/
+[5]: https://www.npmjs.com/package/mobx-strapi
 [6]: https://github.com/idea2app/MobX-RESTful/tree/master
 [7]: https://github.com/EasyWebApp/WebCell
