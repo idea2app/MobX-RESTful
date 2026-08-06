@@ -182,7 +182,7 @@ describe('List model', () => {
                 }
             }
 
-            openStream() {
+            openStream(): AsyncGenerator<Repository, void, any> {
                 return mergeStream(this.getOrgRepos.bind(this), this.getUserRepos.bind(this));
             }
         }
